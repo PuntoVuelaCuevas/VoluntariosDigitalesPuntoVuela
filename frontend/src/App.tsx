@@ -471,7 +471,7 @@ const App = () => {
         <div className="max-w-md mx-auto pt-12">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="text-center mb-8">
-              <img src="./src/assets/Logo Punto Vuela.jpg" width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
+              <img src={logoPuntoVuela} width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
               <h1 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido de nuevo</h1>
               <p className="text-gray-600">Inicia sesión para continuar</p>
             </div>
@@ -547,7 +547,7 @@ const App = () => {
         <div className="max-w-md mx-auto pt-12">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="text-center mb-8">
-              <img src="./src/assets/Logo Punto Vuela.jpg" width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
+              <img src={logoPuntoVuela} width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
               <h2 className="text-2xl font-bold text-gray-800 mb-2">¡Cuenta creada con éxito!</h2>
               <p className="text-gray-600">¿Cómo quieres usar la plataforma?</p>
             </div>
@@ -783,9 +783,9 @@ const App = () => {
               <div className="space-y-4">
                 {pendingRequests.map(req => (
                   <div key={req.id} className="border-2 border-gray-300 rounded-lg p-4 transition-all hover:border-yellow-500">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                    <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
+                      <div className="flex-1 w-full">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-black">
                             {getCategoryLabel(req.category)}
                           </span>
@@ -808,7 +808,7 @@ const App = () => {
                       <button
                         onClick={() => acceptHelp(req.id)}
                         disabled={hasActiveHelp}
-                        className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-all ${hasActiveHelp
+                        className={`w-full md:w-auto md:ml-4 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all ${hasActiveHelp
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           : 'bg-yellow-500 hover:bg-yellow-600 text-black transform hover:scale-105'
                           }`}
