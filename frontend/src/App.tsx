@@ -40,7 +40,7 @@ interface HelpRequest {
 
 const App = () => {
   // Estados
-  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null);
+
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authStep, setAuthStep] = useState<'register' | 'login' | 'selectRole' | 'dashboard'>('register');
   const [registerForm, setRegisterForm] = useState({
