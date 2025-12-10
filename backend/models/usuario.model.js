@@ -45,6 +45,11 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: true,
         comment: 'Género del usuario'
     },
+    rol_activo: {
+        type: DataTypes.ENUM('voluntario', 'solicitante'),
+        allowNull: true,
+        comment: 'Rol actual del usuario'
+    },
     fecha_registro: {
         type: DataTypes.DATE,
         allowNull: false,

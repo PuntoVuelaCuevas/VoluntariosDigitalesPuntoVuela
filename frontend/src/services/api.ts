@@ -94,3 +94,63 @@ export const obtenerMensajesPorTrayecto = async (trayectoId: number) => {
     const response = await fetch(`${API_BASE_URL}/mensajes/trayecto/${trayectoId}`);
     return response.json();
 };
+
+// Autenticación
+export interface RegisterData {
+    nombre_completo: string;
+    email: string;
+    password: string;
+    edad?: number;
+    genero?: string;
+}
+
+export interface LoginData {
+    email: string;
+    password: string;
+}
+
+export const register = async (data: RegisterData) => {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error en el registro',
+            status: response.status
+        };
+    }
+
+    return response.json();
+};
+
+export const login = async (data: LoginData) => {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error en el login',
+            status: response.status
+        };
+    }
+
+    return response.json();
+};
+
+export const updateUserRol = async (id: number, rol: 'voluntario' | 'solicitante') => {
+    const response = await fetch(`${API_BASE_URL}/usuarios/${id}/rol`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rol })
+    });
+    return response.json();
+};
+

@@ -5,6 +5,7 @@ const { sequelize } = require('./models'); // Import from models/index.js to get
 const usuarioRoutes = require('./routes/usuario.routes');
 const trayectoRoutes = require('./routes/trayecto.routes');
 const mensajeRoutes = require('./routes/mensaje.routes');
+const authRoutes = require('./routes/auth.routes');
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/usuarios', usuarioRoutes);
 app.use('/api/v1/trayectos', trayectoRoutes);
 app.use('/api/v1/mensajes', mensajeRoutes);
