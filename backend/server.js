@@ -1,0 +1,42 @@
+const express = require('express');
+const cors = require('cors');
+const { connectDB } = require('./config/db');
+const { sequelize } = require('./models'); // Import from models/index.js to get associations
+const usuarioRoutes = require('./routes/usuario.routes');
+const trayectoRoutes = require('./routes/trayecto.routes');
+const mensajeRoutes = require('./routes/mensaje.routes');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use('/api/v1/usuarios', usuarioRoutes);
+app.use('/api/v1/trayectos', trayectoRoutes);
+app.use('/api/v1/mensajes', mensajeRoutes);
+
+// Root route
+app.get('/', (req, res) => {
+    res.json({ message: 'Welcome to the Voluntarios-App API.' });
+});
+
+// Database Connection and Server Start
+const startServer = async () => {
+    await connectDB();
+
+    // Sync models with database
+    // alter: true updates tables to match models without dropping data
+    await sequelize.sync({ alter: true });
+    console.log('Database synced (Voluntarios-App schema).');
+
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}.`);
+    });
+};
+
+startServer();
