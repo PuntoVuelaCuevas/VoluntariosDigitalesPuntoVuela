@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AlertCircle, Users, User, Heart, Clock, CheckCircle, Mail, Lock, LogOut } from 'lucide-react';
 import './index.css';
 import * as api from './services/api';
+import logoPuntoVuela from './assets/Logo Punto Vuela.jpg';
 
 // --- Interfaces ---
 interface UserProfile {
@@ -350,7 +351,7 @@ const App = () => {
         <div className="max-w-md mx-auto pt-12">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="text-center mb-8">
-              <img src="./src/assets/Logo Punto Vuela.jpg" width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
+              <img src={logoPuntoVuela} width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
               <h1 className="text-3xl font-bold text-gray-800 mb-2">Voluntarios Digitales Punto Vuela</h1>
               <p className="text-gray-600">Crea tu cuenta para comenzar</p>
             </div>
