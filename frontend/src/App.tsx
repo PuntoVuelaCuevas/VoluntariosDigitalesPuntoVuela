@@ -671,7 +671,7 @@ const App = () => {
 
               <button
                 onClick={createHelpRequest}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded-lg font-semibold transition-all"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all"
               >
                 Enviar Solicitud
               </button>
@@ -833,9 +833,9 @@ const App = () => {
               <div className="space-y-4">
                 {myHelps.map(help => (
                   <div key={help.id} className="border-2 border-green-500 rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                    <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
+                      <div className="flex-1 w-full">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-600 text-white">
                             {getCategoryLabel(help.category)}
                           </span>
@@ -857,7 +857,7 @@ const App = () => {
                       {help.status === 'accepted' && (
                         <button
                           onClick={() => completeHelp(help.id)}
-                          className="ml-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105"
+                          className="w-full md:w-auto md:ml-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all transform hover:scale-105"
                         >
                           <CheckCircle className="w-5 h-5 inline mr-2" />
                           Marcar como Completada
