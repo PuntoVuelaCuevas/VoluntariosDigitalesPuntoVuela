@@ -3,7 +3,7 @@ const Usuario = require('./usuario.model');
 const Trayecto = require('./trayecto.model');
 const Mensaje = require('./mensaje.model');
 
-// Associations
+// Associations.
 
 // Usuario <-> Trayecto (Solicitante)
 Usuario.hasMany(Trayecto, { foreignKey: 'solicitante_id', as: 'trayectosSolicitados' });

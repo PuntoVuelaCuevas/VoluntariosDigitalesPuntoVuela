@@ -383,7 +383,7 @@ const App = () => {
                     <Users className="w-8 h-8 text-green-600" />
                   }
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Completa tu Registro</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Completa tu Registro.</h2>
                 <p className="text-gray-600">
                   {formData.type === 'user' ? 'Usuario que solicita ayuda' : 'Voluntario solidario'}
                 </p>
