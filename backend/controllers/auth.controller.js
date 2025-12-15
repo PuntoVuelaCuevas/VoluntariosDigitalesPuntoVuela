@@ -16,12 +16,30 @@ exports.register = async (req, res) => {
         }
 
         // Verificar si el email ya existe
-        const existingUser = await Usuario.findOne({ where: { email } });
-        if (existingUser) {
-            return res.status(400).json({
-                message: 'El email ya está registrado'
-            });
+        let usuario = await Usuario.findOne({ where: { email } });
+
+        if (usuario) {
+            if (usuario.email_verified) {
+                return res.status(400).json({
+                    message: 'El email ya está registrado'
+                });
+            } else {
+                // Usuario existe pero no está verificado: REENVIAR CORREO
+                const verification_token = crypto.randomBytes(32).toString('hex');
+                usuario.verification_token = verification_token;
+                // Actualizar password si lo cambiaron (opcional, aquí lo mantenemos simple)
+                await usuario.save();
+
+                sendVerificationEmail(usuario, verification_token);
+
+                return res.status(200).json({
+                    message: 'Usuario ya registrado pero no verificado. Hemos reenviado el correo.'
+                });
+            }
         }
+
+        // Si no existe, continuamos con el registro normal
+        // Generar nombre de usuario único...
 
         // Generar nombre de usuario único
         const nombre_usuario = email.split('@')[0] + '_' + Date.now();
