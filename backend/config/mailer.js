@@ -14,6 +14,9 @@ const transporter = nodemailer.createTransport({
     debug: true,
     connectionTimeout: 10000,
     socketTimeout: 10000,
+    // Forzar IPv4 (clave para arreglar bloqueos en Render)
+    ignoreTLS: false,
+    requireTLS: true,
     tls: {
         rejectUnauthorized: false
     }
