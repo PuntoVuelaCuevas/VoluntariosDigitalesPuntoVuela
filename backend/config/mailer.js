@@ -17,6 +17,7 @@ const transporter = nodemailer.createTransport({
     // Forzar IPv4 (clave para arreglar bloqueos en Render)
     ignoreTLS: false,
     requireTLS: true,
+    family: 4, // <-- Esto fuerza IPv4 explícitamente en el socket
     tls: {
         rejectUnauthorized: false
     }
