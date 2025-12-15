@@ -43,7 +43,7 @@ const App = () => {
   // Estados
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [authStep, setAuthStep] = useState<'register' | 'login' | 'selectRole' | 'dashboard'>('register');
+  const [authStep, setAuthStep] = useState<'register' | 'login' | 'selectRole' | 'dashboard' | 'verificationSent'>('register');
   const [registerForm, setRegisterForm] = useState({
     nombre_completo: '',
     email: '',
@@ -192,7 +192,7 @@ const App = () => {
     }
 
     try {
-      const usuario = await api.register({
+      await api.register({
         nombre_completo,
         email,
         password,
@@ -200,8 +200,9 @@ const App = () => {
         genero
       });
 
-      setTempUserId(usuario.id);
-      setAuthStep('selectRole');
+      // setTempUserId(usuario.id); 
+      // Ya no pasamos directo, pedimos verificación
+      setAuthStep('verificationSent');
     } catch (error: any) {
       console.error('Error al registrar:', error);
       if (error.status === 400 || (error.message && error.message.includes('duplicado'))) {
@@ -535,6 +536,31 @@ const App = () => {
               </div>
             </form>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Pantalla de correo enviado
+  if (authStep === 'verificationSent') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+            <Mail className="w-8 h-8 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">¡Verifica tu correo!</h2>
+          <p className="text-gray-600 mb-8">
+            Hemos enviado un enlace de confirmación a <strong>{registerForm.email}</strong>.
+            <br /><br />
+            Por favor, revisa tu bandeja de entrada (y el spam) para activar tu cuenta.
+          </p>
+          <button
+            onClick={() => setAuthStep('login')}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
+          >
+            Volver al Iniciar Sesión
+          </button>
         </div>
       </div>
     );
