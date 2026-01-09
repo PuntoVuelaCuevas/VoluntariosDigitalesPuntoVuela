@@ -103,7 +103,7 @@ exports.verifyEmail = async (req, res) => {
         await usuario.save();
 
         // Redirigir al frontend (login)
-        res.redirect('https://mi-proyecto-pearl.vercel.app/');
+        res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/');
     } catch (error) {
         console.error('Error verifying email:', error);
         res.status(500).send('<h1>Error al verificar el correo.</h1>');
