@@ -11,7 +11,10 @@ const transporter = nodemailer.createTransport({
     },
     // Brevo suele ser más fiable, no necesita hacks de timeout extremos, pero dejamos un log básico
     logger: true,
-    debug: true
+    debug: true,
+    connectionTimeout: 10000, // 10 segundos timeout
+    greetingTimeout: 5000, // 5 segundos para recibir saludo del servidor
+    socketTimeout: 10000 // 10 segundos timeout de socket
 });
 
 const sendNewRequestNotification = async (trayecto, recipients) => {
