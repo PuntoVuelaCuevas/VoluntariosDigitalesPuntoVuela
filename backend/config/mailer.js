@@ -76,7 +76,6 @@ const sendNewRequestNotification = async (trayecto, recipients) => {
                     <h3 style="margin-top: 0;">${trayecto.titulo}</h3>
                     <p><strong>Descripción:</strong> ${trayecto.descripcion}</p>
                     <p><strong>Origen:</strong> ${origen}</p>
-                    <p><strong>Destino:</strong> ${destino}</p>
                 </div>
 
                 <p>Entra en la aplicación para ver más detalles y aceptar la ayuda si estás disponible.</p>

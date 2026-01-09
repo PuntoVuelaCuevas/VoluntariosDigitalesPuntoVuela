@@ -95,7 +95,9 @@ exports.verifyEmail = async (req, res) => {
         const usuario = await Usuario.findOne({ where: { verification_token: token } });
 
         if (!usuario) {
-            return res.status(400).send('<h1>Link de verificación inválido o expirado.</h1>');
+            // Si no hay usuario/token, probablemente ya se verificó.
+            // En vez de error feo, redirigimos al login para que entre directo.
+            return res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/');
         }
 
         usuario.email_verified = true;
@@ -106,7 +108,8 @@ exports.verifyEmail = async (req, res) => {
         res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/');
     } catch (error) {
         console.error('Error verifying email:', error);
-        res.status(500).send('<h1>Error al verificar el correo.</h1>');
+        // En caso de error grave, también redirigimos o mostramos algo más amable
+        res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/');
     }
 };
 
