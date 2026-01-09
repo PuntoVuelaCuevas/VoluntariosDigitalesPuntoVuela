@@ -45,6 +45,27 @@ const sendEmailViaAPI = async ({ to, subject, htmlContent }) => {
 const sendNewRequestNotification = async (trayecto, recipients) => {
     try {
         const subject = `¡Alguien necesita tu ayuda! 🆘 - ${trayecto.titulo}`;
+
+        // Helper simple para formatear ubicación (si es JSON string o normal)
+        const formatLocation = (loc) => {
+            try {
+                if (!loc) return 'No especificado';
+                // Si ya es un objeto (por sequelize parsing)
+                if (typeof loc === 'object' && loc.name) return loc.name;
+                // Si es string que parece JSON
+                if (typeof loc === 'string' && (loc.startsWith('{') || loc.startsWith('['))) {
+                    const parsed = JSON.parse(loc);
+                    return parsed.name || loc;
+                }
+                return loc;
+            } catch (e) {
+                return loc; // Fallback si falla el parseo
+            }
+        };
+
+        const origen = formatLocation(trayecto.ubicacion_origen);
+        const destino = formatLocation(trayecto.ubicacion_destino);
+
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #2563eb;">¡Alguien necesita tu ayuda!</h2>
@@ -54,8 +75,8 @@ const sendNewRequestNotification = async (trayecto, recipients) => {
                 <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="margin-top: 0;">${trayecto.titulo}</h3>
                     <p><strong>Descripción:</strong> ${trayecto.descripcion}</p>
-                    <p><strong>Origen:</strong> ${trayecto.ubicacion_origen}</p>
-                    <p><strong>Destino:</strong> ${trayecto.ubicacion_destino}</p>
+                    <p><strong>Origen:</strong> ${origen}</p>
+                    <p><strong>Destino:</strong> ${destino}</p>
                 </div>
 
                 <p>Entra en la aplicación para ver más detalles y aceptar la ayuda si estás disponible.</p>
