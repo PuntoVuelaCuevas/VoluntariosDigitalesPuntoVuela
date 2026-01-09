@@ -44,10 +44,10 @@ const sendEmailViaAPI = async ({ to, subject, htmlContent }) => {
 
 const sendNewRequestNotification = async (trayecto, recipients) => {
     try {
-        const subject = `📢 Nueva Solicitud de Ayuda: ${trayecto.titulo}`;
+        const subject = `¡Alguien necesita tu ayuda! 🆘 - ${trayecto.titulo}`;
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #2563eb;">Nueva Solicitud de Ayuda</h2>
+                <h2 style="color: #2563eb;">¡Alguien necesita tu ayuda!</h2>
                 <p>Hola voluntario,</p>
                 <p>Se ha creado una nueva solicitud de ayuda en la plataforma que podría interesarte.</p>
                 
