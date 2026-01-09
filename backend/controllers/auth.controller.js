@@ -168,7 +168,13 @@ exports.login = async (req, res) => {
 exports.testEmail = async (req, res) => {
     try {
         const { email } = req.params;
+        const nodemailer = require('nodemailer');
+        // Importamos directamente para ver la config real cargada
         const { sendTestEmail, verifyConnection } = require('../config/mailer');
+
+        // HACK: Requerir el archivo mailer.js para intentar leer el objeto transporter si fuera exportado
+        // Como no exportamos el transporter directamente, no podemos ver sus options fácilmente sin modificar mailer.js
+        // Pero podemos inferir si el cambio se aplicó viendo si el error cambia o si el timeout funciona.
 
         console.log("Testing connection...");
         await verifyConnection();
@@ -182,10 +188,23 @@ exports.testEmail = async (req, res) => {
         });
     } catch (error) {
         console.error('Test email failed:', error);
+
+        // Intentar leer variables de entorno para ver qué está leyendo el proceso
+        const debugConfig = {
+            port: process.env.EMAIL_PORT || 'No definido (Usa default del código)',
+            // Nota: El código usa 465 hardcodeado ahora, así que esto no nos dirá mucho salvo que hayamos cambiado el código
+            user: process.env.EMAIL_USER ? '***' : 'Missing',
+            pass: process.env.EMAIL_PASS ? '***' : 'Missing'
+        };
+
         res.status(500).json({
             message: 'Error enviando email de prueba',
             error: error.message,
-            stack: error.stack
+            stack: error.stack,
+            debug: {
+                timestamp: new Date().toISOString(),
+                hint: "Si sigue saliendo timeout en puerto 465, Railway bloquea SMTP."
+            }
         });
     }
 };
