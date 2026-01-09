@@ -164,3 +164,28 @@ exports.login = async (req, res) => {
         });
     }
 };
+
+exports.testEmail = async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { sendTestEmail, verifyConnection } = require('../config/mailer');
+
+        console.log("Testing connection...");
+        await verifyConnection();
+
+        console.log(`Sending test email to ${email}...`);
+        const info = await sendTestEmail(email);
+
+        res.json({
+            message: 'Email enviado correctamente',
+            info: info
+        });
+    } catch (error) {
+        console.error('Test email failed:', error);
+        res.status(500).json({
+            message: 'Error enviando email de prueba',
+            error: error.message,
+            stack: error.stack
+        });
+    }
+};

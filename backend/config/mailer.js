@@ -2,25 +2,16 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp-relay.brevo.com',
     port: 587,
-    secure: false, // false for 587 (STARTTLS)
+    secure: false, // true for 465, false for other ports
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    // Opciones para evitar timeouts en Render
+    // Brevo suele ser más fiable, no necesita hacks de timeout extremos, pero dejamos un log básico
     logger: true,
-    debug: true,
-    connectionTimeout: 60000, // 60 segundos
-    socketTimeout: 60000,
-    // Forzar IPv4 (clave para arreglar bloqueos en Render)
-    ignoreTLS: false,
-    requireTLS: true,
-    family: 4, // <-- Esto fuerza IPv4 explícitamente en el socket
-    tls: {
-        rejectUnauthorized: false
-    }
+    debug: true
 });
 
 const sendNewRequestNotification = async (trayecto, recipients) => {
@@ -30,8 +21,10 @@ const sendNewRequestNotification = async (trayecto, recipients) => {
             return;
         }
 
+        // Usamos EMAIL_FROM si existe, si no, intentamos usar EMAIL_USER, y si no, un string vacío
+        const senderEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
         const mailOptions = {
-            from: `"Voluntarios Punto Vuela" <${process.env.EMAIL_USER}>`,
+            from: `"Voluntarios Punto Vuela" <${senderEmail}>`,
             bcc: recipients, // Blind Carbon Copy for privacy
             subject: `📢 Nueva Solicitud de Ayuda: ${trayecto.titulo}`,
             html: `
@@ -72,8 +65,9 @@ const sendVerificationEmail = async (user, token) => {
 
         const verificationLink = `https://backend-voluntariosapp.onrender.com/api/v1/auth/verify/${token}`;
 
+        const senderEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
         const mailOptions = {
-            from: `"Voluntarios Punto Vuela" <${process.env.EMAIL_USER}>`,
+            from: `"Voluntarios Punto Vuela" <${senderEmail}>`,
             to: user.email,
             subject: `Verifica tu cuenta en Voluntarios Punto Vuela`,
             html: `
@@ -98,4 +92,26 @@ const sendVerificationEmail = async (user, token) => {
     }
 };
 
-module.exports = { sendNewRequestNotification, sendVerificationEmail };
+const verifyConnection = async () => {
+    try {
+        await transporter.verify();
+        console.log('Transporter verification success');
+        return true;
+    } catch (error) {
+        console.error('Transporter verification failed:', error);
+        throw error;
+    }
+};
+
+const sendTestEmail = async (targetEmail) => {
+    const senderEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+    const mailOptions = {
+        from: `"Test Debug" <${senderEmail}>`,
+        to: targetEmail,
+        subject: "Test de Configuración Railway",
+        text: "Si lees esto, el email funciona correctamente."
+    };
+    return transporter.sendMail(mailOptions); // This will throw if it fails, allowing us to see the error
+};
+
+module.exports = { sendNewRequestNotification, sendVerificationEmail, verifyConnection, sendTestEmail };
