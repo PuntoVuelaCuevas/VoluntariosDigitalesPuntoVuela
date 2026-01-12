@@ -39,6 +39,14 @@ interface HelpRequest {
   voluntario_id?: number | null;
 }
 
+interface RankingEntry {
+  posicion: number;
+  id: number;
+  nombre: string;
+  localidad: string;
+  ayudas_completadas: number;
+}
+
 const App = () => {
   // Estados
 
@@ -49,7 +57,8 @@ const App = () => {
     email: '',
     password: '',
     edad: '',
-    genero: ''
+    genero: '',
+    localidad: ''
   });
   const [loginForm, setLoginForm] = useState({
     email: '',
@@ -73,6 +82,8 @@ const App = () => {
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [requestData, setRequestData] = useState({ category: '', description: '' });
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
+  const [showRanking, setShowRanking] = useState(false);
+  const [ranking, setRanking] = useState<RankingEntry[]>([]);
 
   const predefinedLocations: Location[] = [
     { id: 'loc1', name: 'Punto Vuela', lat: 37.2965, lng: -1.8687, icon: '🏢', color: 'blue' },
@@ -175,7 +186,8 @@ const App = () => {
         email: usuario.email || '',
         password: '',
         edad: usuario.edad?.toString() || '',
-        genero: usuario.genero || ''
+        genero: usuario.genero || '',
+        localidad: ''
       });
 
       setAuthStep('selectRole');
@@ -194,11 +206,11 @@ const App = () => {
   // Manejar registro
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { nombre_completo, email, password, edad, genero } = registerForm;
+    const { nombre_completo, email, password, edad, genero, localidad } = registerForm;
 
     setRegisterError(null); // Limpiar errores previos
 
-    if (!nombre_completo || !email || !password || !edad || !genero) {
+    if (!nombre_completo || !email || !password || !edad || !genero || !localidad) {
       setRegisterError('Por favor completa todos los campos');
       return;
     }
@@ -216,7 +228,8 @@ const App = () => {
         email,
         password,
         edad: parseInt(edad),
-        genero
+        genero,
+        localidad
       });
 
       // setTempUserId(usuario.id); 
@@ -334,7 +347,8 @@ const App = () => {
         email: userProfile.email,
         password: '',
         edad: userProfile.age,
-        genero: userProfile.gender
+        genero: userProfile.gender,
+        localidad: ''
       });
       setAuthStep('selectRole');
     }
@@ -349,7 +363,8 @@ const App = () => {
       email: '',
       password: '',
       edad: '',
-      genero: ''
+      genero: '',
+      localidad: ''
     });
     setTempUserId(null);
     setHelpRequests([]);
@@ -478,6 +493,19 @@ const App = () => {
                     <option value="Otro">Otro</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Localidad</label>
+                <select
+                  value={registerForm.localidad}
+                  onChange={(e) => setRegisterForm({ ...registerForm, localidad: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  required
+                >
+                  <option value="">Seleccionar</option>
+                  <option value="Cuevas del Becerro">Cuevas del Becerro</option>
+                </select>
               </div>
 
               {/* Mensaje de error (Registro) */}
@@ -763,6 +791,105 @@ const App = () => {
     );
   }
 
+  // Pantalla de Ranking
+  if (showRanking && userProfile) {
+    const getMedalEmoji = (pos: number) => {
+      if (pos === 1) return '🥇';
+      if (pos === 2) return '🥈';
+      if (pos === 3) return '🥉';
+      return pos;
+    };
+
+    const getTopThreeClass = (pos: number) => {
+      if (pos === 1) return 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white scale-105';
+      if (pos === 2) return 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-900';
+      if (pos === 3) return 'bg-gradient-to-r from-amber-600 to-amber-700 text-white';
+      return 'bg-white border border-gray-200';
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <button
+              onClick={() => setShowRanking(false)}
+              className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
+            >
+              ← Volver
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">🏆 Ranking de Voluntarios</h1>
+              <p className="text-gray-600">Top 15 voluntarios más activos</p>
+              <p className="text-sm text-purple-600 font-semibold mt-2">¡Los 3 primeros reciben premio!</p>
+            </div>
+
+            {(!Array.isArray(ranking) || ranking.length === 0) ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">
+                  {Array.isArray(ranking) ? 'No hay voluntarios en el ranking todavía.' : 'Error al cargar el ranking.'}
+                </p>
+                <button
+                  onClick={async () => {
+                    const data = await api.getRanking();
+                    setRanking(data);
+                  }}
+                  className="mt-4 text-blue-600 font-semibold hover:underline"
+                >
+                  Intentar recargar
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {ranking.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className={`${getTopThreeClass(entry.posicion)} rounded-xl p-5 transition-all transform hover:scale-102 ${entry.posicion <= 3 ? 'shadow-xl border-2 border-yellow-500' : 'shadow-md'
+                      }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className={`${entry.posicion <= 3
+                          ? 'text-5xl font-bold'
+                          : 'text-2xl font-semibold w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-700'
+                          }`}>
+                          {getMedalEmoji(entry.posicion)}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`${entry.posicion <= 3 ? 'text-2xl' : 'text-xl'} font-bold ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white' : 'text-gray-800'
+                            }`}>
+                            {entry.nombre}
+                          </h3>
+                          <p className={`text-sm ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white/80' : 'text-gray-600'
+                            }`}>
+                            {entry.localidad}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`${entry.posicion <= 3 ? 'text-4xl' : 'text-3xl'} font-bold ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white' : 'text-purple-600'
+                          }`}>
+                          {entry.ayudas_completadas}
+                        </div>
+                        <div className={`text-xs ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white/80' : 'text-gray-500'
+                          }`}>
+                          ayudas
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Dashboard para Usuario (necesita ayuda)
   if (userProfile && userProfile.type === 'user') {
     return (
@@ -770,6 +897,17 @@ const App = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header con botón de logout */}
           <div className="flex justify-end items-center mb-6 gap-4">
+            <button
+              onClick={async () => {
+                setShowRanking(true);
+                const data = await api.getRanking();
+                setRanking(data);
+              }}
+              className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              🏆 Ranking
+            </button>
+
             <button
               onClick={switchRole}
               className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
@@ -926,6 +1064,17 @@ const App = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header con botón de logout */}
           <div className="flex justify-end items-center mb-6 gap-4">
+            <button
+              onClick={async () => {
+                setShowRanking(true);
+                const data = await api.getRanking();
+                setRanking(data);
+              }}
+              className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              🏆 Ranking
+            </button>
+
             <button
               onClick={switchRole}
               className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"

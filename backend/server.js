@@ -6,6 +6,7 @@ const usuarioRoutes = require('./routes/usuario.routes');
 const trayectoRoutes = require('./routes/trayecto.routes');
 const mensajeRoutes = require('./routes/mensaje.routes');
 const authRoutes = require('./routes/auth.routes');
+const rankingRoutes = require('./routes/ranking.routes');
 require('dotenv').config();
 
 const app = express();
@@ -21,6 +22,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/usuarios', usuarioRoutes);
 app.use('/api/v1/trayectos', trayectoRoutes);
 app.use('/api/v1/mensajes', mensajeRoutes);
+app.use('/api/v1/ranking', rankingRoutes);
 
 // Root route
 app.get('/', (req, res) => {

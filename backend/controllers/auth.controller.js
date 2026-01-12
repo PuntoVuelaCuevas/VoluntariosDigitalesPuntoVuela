@@ -6,7 +6,7 @@ const { sendVerificationEmail, sendPasswordResetEmail } = require('../config/mai
 // Registrar nuevo usuario
 exports.register = async (req, res) => {
     try {
-        const { nombre_completo, email, password, edad, genero } = req.body;
+        const { nombre_completo, email, password, edad, genero, localidad } = req.body;
 
         // Validar campos requeridos
         if (!nombre_completo || !email || !password) {
@@ -58,6 +58,7 @@ exports.register = async (req, res) => {
             nombre_completo,
             edad: edad || null,
             genero: genero || null,
+            localidad: localidad || null,
             es_voluntario: false,
             rol_activo: null,
             email_verified: false,

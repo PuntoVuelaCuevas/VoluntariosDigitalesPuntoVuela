@@ -102,6 +102,7 @@ export interface RegisterData {
     password: string;
     edad?: number;
     genero?: string;
+    localidad?: string;
 }
 
 export interface LoginData {
@@ -181,4 +182,10 @@ export const resetPassword = async (token: string, newPassword: string) => {
     }
     return response.json();
 };
+
+export const getRanking = async () => {
+    const response = await fetch(`${API_BASE_URL}/ranking`);
+    return response.json();
+};
+
 

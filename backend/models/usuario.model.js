@@ -45,6 +45,11 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: true,
         comment: 'Género del usuario'
     },
+    localidad: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        comment: 'Localidad del usuario'
+    },
     rol_activo: {
         type: DataTypes.ENUM('voluntario', 'solicitante'),
         allowNull: true,
