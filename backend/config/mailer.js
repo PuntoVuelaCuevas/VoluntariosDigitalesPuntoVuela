@@ -166,4 +166,37 @@ const sendTestEmail = async (targetEmail) => {
     });
 };
 
-module.exports = { sendNewRequestNotification, sendVerificationEmail, verifyConnection, sendTestEmail };
+const sendPasswordResetEmail = async (email, token) => {
+    try {
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const resetLink = `${frontendUrl}/reset-password?token=${token}`;
+
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #2563eb;">Recuperación de Contraseña</h2>
+                <p>Hola,</p>
+                <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente botón para continuar:</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Restablecer Contraseña</a>
+                </div>
+
+                <p style="font-size: 12px; color: #666;">Este enlace expirará en 1 hora.</p>
+                <p style="font-size: 12px; color: #666;">Si no has solicitado esto, puedes ignorar este correo.</p>
+            </div>
+        `;
+
+        const info = await sendEmailViaAPI({
+            to: email,
+            subject: 'Restablecer contraseña - Voluntarios Punto Vuela',
+            htmlContent: html
+        });
+
+        console.log('Password reset email sent (API):', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+    }
+};
+
+module.exports = { sendNewRequestNotification, sendVerificationEmail, verifyConnection, sendTestEmail, sendPasswordResetEmail };

@@ -35,7 +35,7 @@ const startServer = async () => {
     // alter: true updates tables to match models without dropping data
     // CAUTION: Disabled 'alter' to prevent ER_TOO_MANY_KEYS error on production deployment
     try {
-        await sequelize.sync({ alter: false });
+        await sequelize.sync({ alter: true });
         console.log('Database synced (Voluntarios-App schema).');
     } catch (syncError) {
         console.error('Error syncing database:', syncError);

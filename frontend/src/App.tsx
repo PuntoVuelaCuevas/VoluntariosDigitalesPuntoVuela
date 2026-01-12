@@ -43,7 +43,7 @@ const App = () => {
   // Estados
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [authStep, setAuthStep] = useState<'register' | 'login' | 'selectRole' | 'dashboard' | 'verificationSent'>('register');
+  const [authStep, setAuthStep] = useState<'register' | 'login' | 'selectRole' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword'>('register');
   const [registerForm, setRegisterForm] = useState({
     nombre_completo: '',
     email: '',
@@ -55,9 +55,16 @@ const App = () => {
     email: '',
     password: ''
   });
+
+  // Estados para recuperación de contraseña
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [resetToken, setResetToken] = useState<string | null>(null);
+
   // Estados para errores en línea (feedback inmediato)
   const [loginError, setLoginError] = useState<string | null>(null);
   const [registerError, setRegisterError] = useState<string | null>(null);
+  const [forgotPasswordMessage, setForgotPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const [tempUserId, setTempUserId] = useState<number | null>(null);
   const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
@@ -82,13 +89,25 @@ const App = () => {
     { id: 'documentos', label: 'Documentos', icon: '📄' }
   ];
 
-  // Cargar usuario de localStorage
+  // Cargar usuario de localStorage y verificar token de URL
   useEffect(() => {
-    const saved = localStorage.getItem('userProfile');
-    if (saved) {
-      const profile = JSON.parse(saved);
-      setUserProfile(profile);
-      setAuthStep('dashboard');
+    // 1. Check URL for reset token
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+      setResetToken(token);
+      setAuthStep('resetPassword');
+      // Limpiar URL para que no se vea feo
+      window.history.replaceState({}, '', window.location.pathname);
+    } else {
+      // 2. Check localStorage if no token
+      const saved = localStorage.getItem('userProfile');
+      if (saved) {
+        const profile = JSON.parse(saved);
+        setUserProfile(profile);
+        setAuthStep('dashboard');
+      }
     }
   }, []);
 
@@ -338,6 +357,35 @@ const App = () => {
     setMyHelps([]);
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotPasswordMessage(null);
+    try {
+      await api.forgotPassword(forgotPasswordEmail);
+      setForgotPasswordMessage({ type: 'success', text: 'Si el correo existe, recibirás un enlace de recuperación.' });
+    } catch (error: any) {
+      setForgotPasswordMessage({ type: 'error', text: error.message || 'Error al solicitar recuperación.' });
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotPasswordMessage(null);
+    if (!resetToken) return;
+
+    try {
+      await api.resetPassword(resetToken, newPassword);
+      setForgotPasswordMessage({ type: 'success', text: 'Contraseña restablecida. Redirigiendo al login...' });
+      setTimeout(() => {
+        setAuthStep('login');
+        setForgotPasswordMessage(null);
+        setResetToken(null);
+      }, 3000);
+    } catch (error: any) {
+      setForgotPasswordMessage({ type: 'error', text: error.message || 'Error al restablecer contraseña.' });
+    }
+  };
+
   const getCategoryLabel = (categoryId: string) => {
     const category = helpCategories.find(c => c.id === categoryId);
     return category ? `${category.icon} ${category.label}` : categoryId;
@@ -533,6 +581,16 @@ const App = () => {
                     Regístrate
                   </button>
                 </p>
+                <p className="text-gray-600 mt-2">
+                  ¿Olvidaste tu contraseña?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setAuthStep('forgotPassword')}
+                    className="text-blue-500 hover:text-blue-400 font-medium"
+                  >
+                    Recuperar contraseña
+                  </button>
+                </p>
               </div>
             </form>
           </div>
@@ -561,6 +619,110 @@ const App = () => {
           >
             Volver al Iniciar Sesión
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Pantalla de recuperación de contraseña (solicitud)
+  if (authStep === 'forgotPassword') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
+        <div className="max-w-md mx-auto pt-12">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Recuperar Contraseña</h2>
+              <p className="text-gray-600">Ingresa tu correo para recibir un enlace de recuperación.</p>
+            </div>
+
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="email"
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    placeholder="tu@email.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              {forgotPasswordMessage && (
+                <div className={`mb-4 p-3 rounded-lg text-sm text-center font-bold ${forgotPasswordMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}>
+                  {forgotPasswordMessage.text}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
+              >
+                Enviar Enlace
+              </button>
+            </form>
+
+            <div className="text-center mt-6">
+              <button
+                onClick={() => setAuthStep('login')}
+                className="text-gray-500 hover:text-gray-700 font-medium"
+              >
+                Volver a Iniciar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Pantalla de restablecer contraseña (nueva password)
+  if (authStep === 'resetPassword') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
+        <div className="max-w-md mx-auto pt-12">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Nueva Contraseña</h2>
+              <p className="text-gray-600">Ingresa tu nueva contraseña para acceder.</p>
+            </div>
+
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Nueva Contraseña</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    placeholder="Mínimo 6 caracteres"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </div>
+
+              {forgotPasswordMessage && (
+                <div className={`mb-4 p-3 rounded-lg text-sm text-center font-bold ${forgotPasswordMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}>
+                  {forgotPasswordMessage.text}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all"
+              >
+                Cambiar Contraseña
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     );

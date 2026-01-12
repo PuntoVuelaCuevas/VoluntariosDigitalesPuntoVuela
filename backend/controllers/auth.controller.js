@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { Usuario } = require('../models');
-const { sendVerificationEmail } = require('../config/mailer');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../config/mailer');
 
 // Registrar nuevo usuario
 exports.register = async (req, res) => {
@@ -165,6 +165,66 @@ exports.login = async (req, res) => {
             message: 'Error al iniciar sesión',
             error: error.message
         });
+    }
+};
+
+// Solicitar recuperación de contraseña
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const usuario = await Usuario.findOne({ where: { email } });
+        if (!usuario) {
+            // Por seguridad, no decimos si existe o no, pero por UX aquí diremos que se envió si existe.
+            // O podemos ser claros si es una app interna/pequeña.
+            return res.status(404).json({ message: 'No existe un usuario con ese correo electrónico.' });
+        }
+
+        // Generar token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const tokenExpires = Date.now() + 3600000; // 1 hora
+
+        usuario.reset_password_token = resetToken;
+        usuario.reset_password_expires = tokenExpires;
+        await usuario.save();
+
+        await sendPasswordResetEmail(usuario.email, resetToken);
+
+        res.json({ message: 'Se ha enviado un correo para restablecer la contraseña.' });
+    } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        res.status(500).json({ message: 'Error al procesar la solicitud.' });
+    }
+};
+
+// Restablecer contraseña con token
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        const usuario = await Usuario.findOne({
+            where: {
+                reset_password_token: token,
+                reset_password_expires: { [require('sequelize').Op.gt]: Date.now() } // Expiración mayor a ahora
+            }
+        });
+
+        if (!usuario) {
+            return res.status(400).json({ message: 'El enlace es inválido o ha expirado.' });
+        }
+
+        // Hashear nueva contraseña
+        const password_hash = await bcrypt.hash(newPassword, 10);
+
+        usuario.password_hash = password_hash;
+        usuario.reset_password_token = null;
+        usuario.reset_password_expires = null;
+        await usuario.save();
+
+        res.json({ message: 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.' });
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        res.status(500).json({ message: 'Error al restablecer la contraseña.' });
     }
 };
 

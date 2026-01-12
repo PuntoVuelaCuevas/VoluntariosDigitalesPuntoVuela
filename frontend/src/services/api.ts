@@ -154,3 +154,31 @@ export const updateUserRol = async (id: number, rol: 'voluntario' | 'solicitante
     return response.json();
 };
 
+export const forgotPassword = async (email: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw { message: errorData.message || 'Error en la solicitud' };
+    }
+    return response.json();
+};
+
+export const resetPassword = async (token: string, newPassword: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, newPassword })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw { message: errorData.message || 'Error al restablecer contraseña' };
+    }
+    return response.json();
+};
+
