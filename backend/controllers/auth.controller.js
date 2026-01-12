@@ -6,12 +6,12 @@ const { sendVerificationEmail, sendPasswordResetEmail } = require('../config/mai
 // Registrar nuevo usuario
 exports.register = async (req, res) => {
     try {
-        const { nombre_completo, email, password, edad, genero, localidad } = req.body;
+        const { nombre_completo, email, password, edad, genero, localidad, rol } = req.body;
 
         // Validar campos requeridos
-        if (!nombre_completo || !email || !password) {
+        if (!nombre_completo || !email || !password || !rol) {
             return res.status(400).json({
-                message: 'Nombre, email y contraseña son requeridos'
+                message: 'Nombre, email, contraseña y rol son requeridos'
             });
         }
 
@@ -59,8 +59,8 @@ exports.register = async (req, res) => {
             edad: edad || null,
             genero: genero || null,
             localidad: localidad || null,
-            es_voluntario: false,
-            rol_activo: null,
+            es_voluntario: rol === 'voluntario',
+            rol_activo: rol,
             email_verified: false,
             verification_token
         });

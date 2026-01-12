@@ -103,6 +103,7 @@ export interface RegisterData {
     edad?: number;
     genero?: string;
     localidad?: string;
+    rol: 'voluntario' | 'solicitante';
 }
 
 export interface LoginData {

@@ -32,7 +32,7 @@ const Trayecto = sequelize.define('Trayecto', {
         allowNull: false
     },
     estado: {
-        type: DataTypes.ENUM('PENDIENTE', 'ACEPTADO', 'COMPLETADO', 'CANCELADO'),
+        type: DataTypes.ENUM('PENDIENTE', 'ACEPTADO', 'COMPLETADO', 'CANCELADO', 'EXPIRADO'),
         allowNull: false,
         defaultValue: 'PENDIENTE'
     },

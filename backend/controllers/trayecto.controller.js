@@ -44,7 +44,27 @@ exports.createTrayecto = async (req, res) => {
 
 exports.findAllTrayectos = async (req, res) => {
     try {
+        const { Op } = require('sequelize');
+        const tiempoExpiracion = new Date(Date.now() - 30 * 60 * 1000);
+
+        // Cambiar a EXPIRADO en lugar de eliminar
+        await Trayecto.update({ estado: 'EXPIRADO' }, {
+            where: {
+                estado: 'PENDIENTE',
+                fecha_creacion: { [Op.lt]: tiempoExpiracion }
+            }
+        });
+
         const trayectos = await Trayecto.findAll({
+            where: {
+                [Op.or]: [
+                    { estado: { [Op.ne]: 'PENDIENTE' } }, // Mostrar aceptados, completados, expirados
+                    {
+                        estado: 'PENDIENTE',
+                        fecha_creacion: { [Op.gte]: tiempoExpiracion } // Mostrar pendientes activos
+                    }
+                ]
+            },
             include: [
                 { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo', 'edad', 'genero'] },
                 { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
@@ -52,6 +72,7 @@ exports.findAllTrayectos = async (req, res) => {
         });
         res.status(200).json(trayectos);
     } catch (error) {
+        console.error('Error retrieving journeys:', error);
         res.status(500).json({ message: 'Error retrieving journeys', error: error.message });
     }
 };

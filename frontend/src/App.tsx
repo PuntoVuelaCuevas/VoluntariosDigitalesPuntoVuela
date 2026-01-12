@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { AlertCircle, Users, User, Heart, Clock, CheckCircle, Mail, Lock, LogOut } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { AlertCircle, Users, User, Heart, Clock, CheckCircle, Mail, Lock, LogOut, MessageSquare, Send } from 'lucide-react';
 import './index.css';
 import * as api from './services/api';
 import logoPuntoVuela from './assets/Logo Punto Vuela.jpg';
@@ -33,10 +33,11 @@ interface HelpRequest {
   description: string;
   location: Location;
   timestamp: string;
-  status: 'pending' | 'accepted' | 'completed';
+  status: 'pending' | 'accepted' | 'completed' | 'expired';
   volunteer: string | null;
   solicitante_id?: number;
   voluntario_id?: number | null;
+  createdAt: string;
 }
 
 interface RankingEntry {
@@ -47,18 +48,57 @@ interface RankingEntry {
   ayudas_completadas: number;
 }
 
+const CountdownTimer = ({ timestamp }: { timestamp: string }) => {
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const start = new Date(timestamp).getTime();
+      const end = start + 30 * 60 * 1000;
+      const now = new Date().getTime();
+      const diff = end - now;
+      return diff > 0 ? diff : 0;
+    };
+
+    setTimeLeft(calculateTimeLeft());
+
+    const timer = setInterval(() => {
+      const remaining = calculateTimeLeft();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timestamp]);
+
+  if (timeLeft <= 0) return <span className="text-red-600 font-bold">Expirado</span>;
+
+  const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
+  const seconds = Math.floor((timeLeft / 1000) % 60);
+
+  return (
+    <div className="flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full font-mono font-bold text-sm animate-pulse border border-red-200">
+      <Clock className="w-4 h-4" />
+      {minutes < 10 ? `0${minutes}` : minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+    </div>
+  );
+};
+
 const App = () => {
   // Estados
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [authStep, setAuthStep] = useState<'register' | 'login' | 'selectRole' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword'>('register');
+  const [authStep, setAuthStep] = useState<'register' | 'login' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword'>('register');
   const [registerForm, setRegisterForm] = useState({
     nombre_completo: '',
     email: '',
     password: '',
     edad: '',
     genero: '',
-    localidad: ''
+    localidad: '',
+    rol: 'solicitante' as 'voluntario' | 'solicitante'
   });
   const [loginForm, setLoginForm] = useState({
     email: '',
@@ -75,7 +115,7 @@ const App = () => {
   const [registerError, setRegisterError] = useState<string | null>(null);
   const [forgotPasswordMessage, setForgotPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  const [tempUserId, setTempUserId] = useState<number | null>(null);
+
   const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
   const [myRequests, setMyRequests] = useState<HelpRequest[]>([]);
   const [myHelps, setMyHelps] = useState<HelpRequest[]>([]);
@@ -84,6 +124,10 @@ const App = () => {
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [showRanking, setShowRanking] = useState(false);
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
+  const [showChat, setShowChat] = useState(false);
+  const [activeChatId, setActiveChatId] = useState<number | null>(null);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
 
   const predefinedLocations: Location[] = [
     { id: 'loc1', name: 'Punto Vuela', lat: 37.2965, lng: -1.8687, icon: '🏢', color: 'blue' },
@@ -133,9 +177,10 @@ const App = () => {
     try {
       const trayectos = await api.obtenerTrayectos();
       const mappedRequests = trayectos.map((t: any) => {
-        let status: 'pending' | 'accepted' | 'completed' = 'pending';
+        let status: 'pending' | 'accepted' | 'completed' | 'expired' = 'pending';
         if (t.estado === 'ACEPTADO') status = 'accepted';
         else if (t.estado === 'COMPLETADO') status = 'completed';
+        else if (t.estado === 'EXPIRADO') status = 'expired';
 
         return {
           id: t.id,
@@ -149,7 +194,8 @@ const App = () => {
           status,
           volunteer: t.voluntario?.nombre_completo || null,
           solicitante_id: t.solicitante_id,
-          voluntario_id: t.voluntario_id
+          voluntario_id: t.voluntario_id,
+          createdAt: t.fecha_creacion
         };
       });
 
@@ -177,20 +223,20 @@ const App = () => {
     try {
       const usuario = await api.login(loginForm);
 
-      // SIEMPRE llevamos al usuario a seleccionar rol
-      setTempUserId(usuario.id!);
+      // Iniciar sesión directamente con el rol del usuario
+      const profile: UserProfile = {
+        id: usuario.id!,
+        name: usuario.nombre_completo!,
+        email: usuario.email!,
+        rol_activo: usuario.rol_activo as 'voluntario' | 'solicitante',
+        type: usuario.rol_activo === 'voluntario' ? 'volunteer' : 'user',
+        gender: usuario.genero!,
+        age: usuario.edad?.toString() || ''
+      };
 
-      // Rellenamos registerForm para que SelectRole funcione
-      setRegisterForm({
-        nombre_completo: usuario.nombre_completo || '',
-        email: usuario.email || '',
-        password: '',
-        edad: usuario.edad?.toString() || '',
-        genero: usuario.genero || '',
-        localidad: ''
-      });
-
-      setAuthStep('selectRole');
+      setUserProfile(profile);
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      setAuthStep('dashboard');
 
     } catch (error: any) {
       console.error('Error login:', error);
@@ -229,7 +275,8 @@ const App = () => {
         password,
         edad: parseInt(edad),
         genero,
-        localidad
+        localidad,
+        rol: registerForm.rol
       });
 
       // setTempUserId(usuario.id); 
@@ -245,31 +292,7 @@ const App = () => {
     }
   };
 
-  // Seleccionar rol
-  const handleSelectRole = async (rol: 'voluntario' | 'solicitante') => {
-    if (!tempUserId) return;
 
-    try {
-      await api.updateUserRol(tempUserId, rol);
-
-      const profile: UserProfile = {
-        id: tempUserId,
-        name: registerForm.nombre_completo,
-        email: registerForm.email,
-        gender: registerForm.genero,
-        age: registerForm.edad,
-        rol_activo: rol,
-        type: rol === 'voluntario' ? 'volunteer' : 'user'
-      };
-
-      setUserProfile(profile);
-      localStorage.setItem('userProfile', JSON.stringify(profile));
-      setAuthStep('dashboard');
-    } catch (error) {
-      console.error('Error al seleccionar rol:', error);
-      alert('Error al seleccionar rol');
-    }
-  };
 
   // Crear solicitud
   const createHelpRequest = async () => {
@@ -339,34 +362,21 @@ const App = () => {
     }
   };
 
-  const switchRole = () => {
-    if (userProfile) {
-      setTempUserId(userProfile.id);
-      setRegisterForm({
-        nombre_completo: userProfile.name,
-        email: userProfile.email,
-        password: '',
-        edad: userProfile.age,
-        genero: userProfile.gender,
-        localidad: ''
-      });
-      setAuthStep('selectRole');
-    }
-  };
+
 
   const logout = () => {
     localStorage.removeItem('userProfile');
     setUserProfile(null);
-    setAuthStep('register');
+    setAuthStep('login');
     setRegisterForm({
       nombre_completo: '',
       email: '',
       password: '',
       edad: '',
       genero: '',
-      localidad: ''
+      localidad: '',
+      rol: 'solicitante'
     });
-    setTempUserId(null);
     setHelpRequests([]);
     setMyRequests([]);
     setMyHelps([]);
@@ -404,6 +414,134 @@ const App = () => {
   const getCategoryLabel = (categoryId: string) => {
     const category = helpCategories.find(c => c.id === categoryId);
     return category ? `${category.icon} ${category.label}` : categoryId;
+  };
+
+  // --- Funciones de Chat ---
+  const openChat = async (trayectoId: number) => {
+    setActiveChatId(trayectoId);
+    setShowChat(true);
+    // Limpiar mensajes anteriores mientras carga
+    setChatMessages([]);
+    try {
+      const msgs = await api.obtenerMensajesPorTrayecto(trayectoId);
+      setChatMessages(msgs);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeChatId || !userProfile?.id || !newMessage.trim()) return;
+
+    try {
+      const msgData = {
+        trayecto_id: activeChatId,
+        emisor_id: userProfile.id,
+        contenido: newMessage.trim()
+      };
+      await api.crearMensaje(msgData);
+      setNewMessage('');
+      // Recargar mensajes
+      const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
+      setChatMessages(msgs);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
+  // Componente de Ventana de Chat
+  const ChatWindow = () => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      if (!showChat || !activeChatId) return;
+
+      const fetchMsgs = async () => {
+        try {
+          const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
+          setChatMessages(msgs);
+        } catch (error) {
+          console.error('Error polling messages:', error);
+        }
+      };
+
+      const interval = setInterval(fetchMsgs, 3000); // Poll cada 3 segundos
+      return () => clearInterval(interval);
+    }, [showChat, activeChatId]);
+
+    useEffect(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    }, [chatMessages]);
+
+    if (!showChat || !activeChatId) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-sm">
+        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col h-[80vh] animate-in fade-in zoom-in duration-300">
+          {/* Header */}
+          <div className="p-5 border-b flex justify-between items-center bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-t-3xl shadow-lg">
+            <h3 className="font-bold flex items-center gap-2 text-lg">
+              <MessageSquare className="w-6 h-6" /> Chat de Ayuda
+            </h3>
+            <button onClick={() => { setShowChat(false); setActiveChatId(null); }} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50 scroll-smooth">
+            {chatMessages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4 opacity-60">
+                <MessageSquare className="w-12 h-12" />
+                <p className="text-center italic">No hay mensajes aún.</p>
+              </div>
+            ) : (
+              chatMessages.map((m: any) => (
+                <div key={m.id} className={`flex flex-col ${m.emisor_id === userProfile?.id ? 'items-end' : 'items-start animate-in slide-in-from-left-2'}`}>
+                  <span className="text-[10px] text-gray-500 mb-1 px-1 font-semibold uppercase tracking-wider">
+                    {m.emisor_id === userProfile?.id ? 'Tú' : m.emisor?.nombre_usuario || 'Usuario'}
+                  </span>
+                  <div className={`max-w-[85%] p-4 rounded-2xl text-sm shadow-sm ${m.emisor_id === userProfile?.id
+                    ? 'bg-yellow-500 text-white rounded-tr-none'
+                    : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
+                    }`}>
+                    {m.contenido}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Input - Solo si está activo */}
+          {helpRequests.find(r => r.id === activeChatId)?.status === 'accepted' ? (
+            <form onSubmit={handleSendMessage} className="p-5 border-t flex gap-2 bg-white rounded-b-3xl shadow-inner">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Escribe un mensaje..."
+                className="flex-1 px-5 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all font-medium"
+                autoFocus
+              />
+              <button
+                type="submit"
+                disabled={!newMessage.trim()}
+                className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center"
+              >
+                <Send className="w-6 h-6" />
+              </button>
+            </form>
+          ) : (
+            <div className="p-5 border-t bg-gray-100 text-gray-500 text-center rounded-b-3xl italic text-sm">
+              El chat está en modo solo lectura porque la solicitud ha finalizado o expirado.
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   // ===== PANTALLAS =====
@@ -506,6 +644,34 @@ const App = () => {
                   <option value="">Seleccionar</option>
                   <option value="Cuevas del Becerro">Cuevas del Becerro</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3 text-center">¿Cómo quieres usar la plataforma?</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setRegisterForm({ ...registerForm, rol: 'solicitante' })}
+                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${registerForm.rol === 'solicitante'
+                      ? 'border-blue-600 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                  >
+                    <User className={`w-8 h-8 ${registerForm.rol === 'solicitante' ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <span className={`font-bold ${registerForm.rol === 'solicitante' ? 'text-blue-700' : 'text-gray-600'}`}>¡Ayúdame!</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRegisterForm({ ...registerForm, rol: 'voluntario' })}
+                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${registerForm.rol === 'voluntario'
+                      ? 'border-yellow-500 bg-yellow-50'
+                      : 'border-gray-200 hover:border-yellow-200'
+                      }`}
+                  >
+                    <Users className={`w-8 h-8 ${registerForm.rol === 'voluntario' ? 'text-yellow-600' : 'text-gray-400'}`} />
+                    <span className={`font-bold ${registerForm.rol === 'voluntario' ? 'text-yellow-700' : 'text-gray-600'}`}>Voluntario</span>
+                  </button>
+                </div>
               </div>
 
               {/* Mensaje de error (Registro) */}
@@ -756,40 +922,7 @@ const App = () => {
     );
   }
 
-  // Pantalla de selección de rol
-  if (authStep === 'selectRole') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
-        <div className="max-w-md mx-auto pt-12">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="text-center mb-8">
-              <img src={logoPuntoVuela} width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">¡Cuenta creada con éxito!</h2>
-              <p className="text-gray-600">¿Cómo quieres usar la plataforma?</p>
-            </div>
 
-            <div className="space-y-3">
-              <button
-                onClick={() => handleSelectRole('solicitante')}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all transform hover:scale-105"
-              >
-                <User className="w-5 h-5" />
-                Necesito Ayuda
-              </button>
-
-              <button
-                onClick={() => handleSelectRole('voluntario')}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all transform hover:scale-105"
-              >
-                <Users className="w-5 h-5" />
-                Soy Voluntario
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Pantalla de Ranking
   if (showRanking && userProfile) {
@@ -908,13 +1041,7 @@ const App = () => {
               🏆 Ranking
             </button>
 
-            <button
-              onClick={switchRole}
-              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              <Users className="w-4 h-4" />
-              Cambiar Rol
-            </button>
+
 
             <button
               onClick={logout}
@@ -1021,11 +1148,13 @@ const App = () => {
                           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-600 text-white">
                             {getCategoryLabel(req.category)}
                           </span>
+                          {req.status === 'pending' && <CountdownTimer timestamp={req.createdAt} />}
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${req.status === 'pending' ? 'bg-yellow-600 text-white' :
                             req.status === 'accepted' ? 'bg-green-600 text-white' :
-                              'bg-gray-600 text-white'
+                              req.status === 'expired' ? 'bg-red-600 text-white' :
+                                'bg-gray-600 text-white'
                             }`}>
-                            {req.status === 'pending' ? 'Pendiente' : req.status === 'accepted' ? 'Aceptada' : 'Completada'}
+                            {req.status === 'pending' ? 'Pendiente' : req.status === 'accepted' ? 'Aceptada' : req.status === 'expired' ? 'Expirada' : 'Completada'}
                           </span>
                         </div>
                         <p className="text-white text-sm mb-2">{req.description}</p>
@@ -1037,9 +1166,19 @@ const App = () => {
                             <span className="font-medium">{req.location.name}</span>
                           )}
                         </div>
-                        {req.volunteer && (
-                          <div className="mt-2 text-sm text-green-400">
-                            ✓ Voluntario: {req.volunteer}
+                        {(req.volunteer || req.status === 'expired') && (
+                          <div className="mt-2 flex items-center justify-between">
+                            <span className={`text-sm font-medium ${req.status === 'expired' ? 'text-red-400' : 'text-green-400'}`}>
+                              {req.status === 'expired' ? '⚠️ Nadie acudió a tiempo' : `✓ Voluntario: ${req.volunteer}`}
+                            </span>
+                            {(req.volunteer || req.status === 'expired') && (
+                              <button
+                                onClick={() => openChat(req.id)}
+                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                              >
+                                💬 Chat
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1050,6 +1189,7 @@ const App = () => {
             )}
           </div>
         </div>
+        <ChatWindow />
       </div>
     );
   }
@@ -1075,13 +1215,7 @@ const App = () => {
               🏆 Ranking
             </button>
 
-            <button
-              onClick={switchRole}
-              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              <Users className="w-4 h-4" />
-              Cambiar Rol
-            </button>
+
 
             <button
               onClick={logout}
@@ -1129,6 +1263,7 @@ const App = () => {
                           <span className="text-sm text-gray-600">
                             {req.userGender}, {req.userAge} años
                           </span>
+                          <CountdownTimer timestamp={req.createdAt} />
                         </div>
                         <p className="text-gray-700 mb-2">{req.description}</p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -1191,15 +1326,23 @@ const App = () => {
                           )}
                         </div>
                       </div>
-                      {help.status === 'accepted' && (
+                      <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto md:ml-4">
                         <button
-                          onClick={() => completeHelp(help.id)}
-                          className="w-full md:w-auto md:ml-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all transform hover:scale-105"
+                          onClick={() => openChat(help.id)}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
                         >
-                          <CheckCircle className="w-5 h-5 inline mr-2" />
-                          Marcar como Completada
+                          💬 Chat
                         </button>
-                      )}
+                        {help.status === 'accepted' && (
+                          <button
+                            onClick={() => completeHelp(help.id)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all transform hover:scale-105"
+                          >
+                            <CheckCircle className="w-5 h-5 inline mr-2" />
+                            Marcar como Completada
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1207,6 +1350,7 @@ const App = () => {
             )}
           </div>
         </div>
+        <ChatWindow />
       </div>
     );
   }
