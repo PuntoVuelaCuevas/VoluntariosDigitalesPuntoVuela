@@ -457,6 +457,9 @@ const App = () => {
     useEffect(() => {
       if (!showChat || !activeChatId) return;
 
+      const currentRequest = helpRequests.find(r => r.id === activeChatId);
+      const isReadonly = currentRequest?.status !== 'accepted';
+
       const fetchMsgs = async () => {
         try {
           const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
@@ -466,9 +469,11 @@ const App = () => {
         }
       };
 
-      const interval = setInterval(fetchMsgs, 3000); // Poll cada 3 segundos
-      return () => clearInterval(interval);
-    }, [showChat, activeChatId]);
+      if (!isReadonly) {
+        const interval = setInterval(fetchMsgs, 3000); // Poll cada 3 segundos
+        return () => clearInterval(interval);
+      }
+    }, [showChat, activeChatId, helpRequests]);
 
     useEffect(() => {
       if (scrollRef.current) {
@@ -1036,7 +1041,7 @@ const App = () => {
                 const data = await api.getRanking();
                 setRanking(data);
               }}
-              className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
               🏆 Ranking
             </button>
@@ -1064,7 +1069,7 @@ const App = () => {
           <div className="mb-6">
             <button
               onClick={() => setShowRequestForm(!showRequestForm)}
-              className="w-full bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all shadow-md group"
             >
               <AlertCircle className="w-5 h-5" />
               Solicitar Ayuda
@@ -1210,7 +1215,7 @@ const App = () => {
                 const data = await api.getRanking();
                 setRanking(data);
               }}
-              className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
               🏆 Ranking
             </button>
