@@ -20,8 +20,10 @@ export interface Trayecto {
     ubicacion_origen: string;
     ubicacion_destino: string;
     fecha_necesaria: string;
-    estado: 'PENDIENTE' | 'ACEPTADO' | 'COMPLETADO' | 'CANCELADO';
+    estado: 'PENDIENTE' | 'ACEPTADO' | 'COMPLETADO' | 'CANCELADO' | 'EXPIRADO';
     voluntario_id?: number | null;
+    confirmacion_solicitante?: boolean;
+    confirmacion_voluntario?: boolean;
 }
 
 export interface Mensaje {
@@ -76,6 +78,13 @@ export const actualizarTrayecto = async (id: number, datos: Partial<Trayecto>) =
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(datos)
+    });
+    return response.json();
+};
+
+export const eliminarTrayecto = async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/trayectos/${id}`, {
+        method: 'DELETE'
     });
     return response.json();
 };

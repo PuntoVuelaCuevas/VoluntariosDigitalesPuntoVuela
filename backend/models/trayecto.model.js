@@ -45,6 +45,16 @@ const Trayecto = sequelize.define('Trayecto', {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW
+    },
+    confirmacion_solicitante: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    confirmacion_voluntario: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     }
 }, {
     tableName: 'trayectos_solicitados',

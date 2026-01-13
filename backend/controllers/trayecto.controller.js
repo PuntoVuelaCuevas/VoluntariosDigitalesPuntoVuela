@@ -7,9 +7,15 @@ exports.createTrayecto = async (req, res) => {
         const trayecto = await Trayecto.create(req.body);
         console.log('Trayecto created successfully:', trayecto.id);
 
-        // Enviar notificación por correo
+        // Enviar notificación por correo solo a voluntarios verificados
         try {
-            const users = await Usuario.findAll({ attributes: ['email'] });
+            const users = await Usuario.findAll({
+                where: {
+                    rol_activo: 'voluntario',
+                    email_verified: true
+                },
+                attributes: ['email']
+            });
             const recipients = users.map(u => u.email).filter(email => email); // Array de emails
 
             if (recipients.length > 0) {
@@ -104,16 +110,28 @@ exports.findOneTrayecto = async (req, res) => {
 
 exports.updateTrayecto = async (req, res) => {
     try {
-        const [updated] = await Trayecto.update(req.body, {
+        await Trayecto.update(req.body, {
             where: { id: req.params.id }
         });
-        if (updated) {
-            const updatedTrayecto = await Trayecto.findByPk(req.params.id, {
-                include: [
-                    { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo'] },
-                    { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
-                ]
-            });
+
+        // Verificar si ambas partes han confirmado para completar el trayecto
+        const trayecto = await Trayecto.findByPk(req.params.id);
+        if (trayecto &&
+            trayecto.confirmacion_solicitante &&
+            trayecto.confirmacion_voluntario &&
+            trayecto.estado !== 'COMPLETADO') {
+
+            await trayecto.update({ estado: 'COMPLETADO' });
+        }
+
+        const updatedTrayecto = await Trayecto.findByPk(req.params.id, {
+            include: [
+                { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo'] },
+                { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
+            ]
+        });
+
+        if (updatedTrayecto) {
             res.status(200).json(updatedTrayecto);
         } else {
             res.status(404).json({ message: 'Journey not found' });
@@ -123,3 +141,17 @@ exports.updateTrayecto = async (req, res) => {
     }
 };
 
+exports.deleteTrayecto = async (req, res) => {
+    try {
+        const deleted = await Trayecto.destroy({
+            where: { id: req.params.id }
+        });
+        if (deleted) {
+            res.status(200).json({ message: 'Journey deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Journey not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting journey', error: error.message });
+    }
+};

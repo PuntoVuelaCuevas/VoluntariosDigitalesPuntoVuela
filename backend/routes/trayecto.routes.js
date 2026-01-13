@@ -6,5 +6,6 @@ router.post('/', trayectoController.createTrayecto);
 router.get('/', trayectoController.findAllTrayectos);
 router.get('/:id', trayectoController.findOneTrayecto);
 router.put('/:id', trayectoController.updateTrayecto);
+router.delete('/:id', trayectoController.deleteTrayecto);
 
 module.exports = router;
