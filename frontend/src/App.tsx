@@ -90,7 +90,7 @@ const App = () => {
   // Estados
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [authStep, setAuthStep] = useState<'register' | 'login' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword'>('register');
+  const [authStep, setAuthStep] = useState<'register' | 'login' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword' | 'howItWorks'>('register');
   const [registerForm, setRegisterForm] = useState({
     nombre_completo: '',
     email: '',
@@ -130,8 +130,8 @@ const App = () => {
   const [newMessage, setNewMessage] = useState('');
 
   const predefinedLocations: Location[] = [
-    { id: 'loc1', name: 'Punto Vuela', lat: 37.2965, lng: -1.8687, icon: '🏢', color: 'blue' },
-    { id: 'loc2', name: 'Centro Cultural Rafael Alberti', lat: 37.2970, lng: -1.8690, icon: '🎭', color: 'purple' },
+    { id: 'loc1', name: 'Punto Vuela', lat: 37.2965, lng: -1.8687, icon: '💻', color: 'blue' },
+    { id: 'loc2', name: 'Puerta Colegio', lat: 37.2970, lng: -1.8690, icon: '🏫', color: 'purple' },
     { id: 'loc3', name: 'El Nacimiento', lat: 37.2980, lng: -1.8680, icon: '🏞️', color: 'green' }
   ];
 
@@ -371,6 +371,24 @@ const App = () => {
     }
   };
 
+  // Cancelar ayuda (Voluntario)
+  const cancelHelp = async (requestId: number) => {
+    if (!window.confirm('¿Seguro que quieres cancelar esta ayuda? Volverá a estar pendiente para otros voluntarios.')) return;
+
+    try {
+      await api.actualizarTrayecto(requestId, {
+        estado: 'PENDIENTE',
+        voluntario_id: null,
+        fecha_creacion: new Date().toISOString() // Reiniciar el temporizador de 30 mins
+      } as any);
+      await loadTrayectos();
+      alert('Ayuda cancelada. Ahora está disponible de nuevo.');
+    } catch (error) {
+      console.error('Error canceling help:', error);
+      alert('Error al cancelar la ayuda');
+    }
+  };
+
 
 
   const logout = () => {
@@ -560,16 +578,86 @@ const App = () => {
 
   // ===== PANTALLAS =====
 
+  // Pantalla ¿Cómo funciona?
+  if (authStep === 'howItWorks') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={() => setAuthStep('register')}
+            className="mb-8 flex items-center gap-2 text-gray-600 hover:text-yellow-600 font-bold transition-all bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md"
+          >
+            ← Volver al registro
+          </button>
+
+          <div className="text-center mb-12 animate-in fade-in slide-in-from-top duration-700">
+            <div className="inline-block p-4 bg-yellow-400 rounded-3xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+              <img src={logoPuntoVuela} width="120px" alt="Punto Vuela" />
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
+              Voluntarios Digitales
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Uniendo generaciones a través de la tecnología. Conectamos a personas mayores que necesitan ayuda digital con jóvenes dispuestos a enseñar.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-yellow-400 transform transition-all hover:-translate-y-2">
+              <div className="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">🤝</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">Conexión Humana</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Más que una ayuda técnica, creamos vínculos entre vecinos de la misma localidad.</p>
+            </div>
+            <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-orange-400 transform transition-all hover:-translate-y-2">
+              <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">📱</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">Soporte Digital</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Desde configurar WhatsApp hasta realizar cualquier trámite digital.</p>
+            </div>
+            <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-yellow-500 transform transition-all hover:-translate-y-2">
+              <div className="w-16 h-16 bg-yellow-200 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">🏆</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">Premios y Reconocimiento</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Los voluntarios más activos reciben premios y el agradecimiento de su comunidad.</p>
+            </div>
+          </div>
+
+          <div className="bg-yellow-400 rounded-[3rem] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+            <div className="relative z-10">
+              <h2 className="text-3xl font-black text-white mb-6">¿Preparado para marcar la diferencia?</h2>
+              <button
+                onClick={() => setAuthStep('register')}
+                className="bg-white text-yellow-600 px-8 py-4 rounded-2xl font-black text-lg shadow-xl hover:shadow-2xl hover:bg-yellow-50 transition-all transform hover:scale-105 active:scale-95"
+              >
+                ¡Comenzar ahora!
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Pantalla de registro
   if (authStep === 'register') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
-        <div className="max-w-md mx-auto pt-12">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+        <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
             <div className="text-center mb-8">
-              <img src={logoPuntoVuela} width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Voluntarios Digitales Punto Vuela</h1>
+              <div className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+                <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+              </div>
+              <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
+                Voluntarios Digitales
+              </h1>
               <p className="text-gray-600">Crea tu cuenta para comenzar</p>
+              <button
+                onClick={() => setAuthStep('howItWorks')}
+                className="mt-3 text-yellow-600 font-bold hover:text-yellow-700 transition-all flex items-center gap-1 mx-auto group"
+              >
+                ¿Cómo funciona?
+                <Heart className="w-4 h-4 group-hover:scale-125 transition-transform text-yellow-500 fill-yellow-500" />
+              </button>
             </div>
 
             <form onSubmit={handleRegister} className="space-y-4">
@@ -579,7 +667,7 @@ const App = () => {
                   type="text"
                   value={registerForm.nombre_completo}
                   onChange={(e) => setRegisterForm({ ...registerForm, nombre_completo: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                   placeholder="Tu nombre completo"
                   required
                 />
@@ -593,7 +681,7 @@ const App = () => {
                     type="email"
                     value={registerForm.email}
                     onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                     placeholder="tu@email.com"
                     required
                   />
@@ -608,7 +696,7 @@ const App = () => {
                     type="password"
                     value={registerForm.password}
                     onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                     placeholder="Mínimo 6 caracteres"
                     minLength={6}
                     required
@@ -623,7 +711,7 @@ const App = () => {
                     type="number"
                     value={registerForm.edad}
                     onChange={(e) => setRegisterForm({ ...registerForm, edad: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                     placeholder="Edad"
                     min="1"
                     max="120"
@@ -636,7 +724,7 @@ const App = () => {
                   <select
                     value={registerForm.genero}
                     onChange={(e) => setRegisterForm({ ...registerForm, genero: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                     required
                   >
                     <option value="">Seleccionar</option>
@@ -652,7 +740,7 @@ const App = () => {
                 <select
                   value={registerForm.localidad}
                   onChange={(e) => setRegisterForm({ ...registerForm, localidad: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                   required
                 >
                   <option value="">Seleccionar</option>
@@ -667,12 +755,12 @@ const App = () => {
                     type="button"
                     onClick={() => setRegisterForm({ ...registerForm, rol: 'solicitante' })}
                     className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${registerForm.rol === 'solicitante'
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? 'border-yellow-500 bg-yellow-50'
+                      : 'border-gray-200 hover:border-yellow-200'
                       }`}
                   >
-                    <User className={`w-8 h-8 ${registerForm.rol === 'solicitante' ? 'text-blue-600' : 'text-gray-400'}`} />
-                    <span className={`font-bold ${registerForm.rol === 'solicitante' ? 'text-blue-700' : 'text-gray-600'}`}>¡Ayúdame!</span>
+                    <User className={`w-8 h-8 ${registerForm.rol === 'solicitante' ? 'text-yellow-600' : 'text-gray-400'}`} />
+                    <span className={`font-bold ${registerForm.rol === 'solicitante' ? 'text-yellow-700' : 'text-gray-600'}`}>¡Ayúdame!</span>
                   </button>
                   <button
                     type="button"
@@ -697,7 +785,7 @@ const App = () => {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-yellow-200"
               >
                 Crear Cuenta
               </button>
@@ -708,7 +796,7 @@ const App = () => {
                   <button
                     type="button"
                     onClick={() => setAuthStep('login')}
-                    className="text-blue-600 font-semibold hover:underline"
+                    className="text-yellow-600 font-bold hover:underline"
                   >
                     Inicia Sesión
                   </button>
@@ -724,12 +812,16 @@ const App = () => {
   // Pantalla de Login
   if (authStep === 'login') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
-        <div className="max-w-md mx-auto pt-12">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+        <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
             <div className="text-center mb-8">
-              <img src={logoPuntoVuela} width="100px" alt="Punto Vuela" className="mx-auto block mb-4" />
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido de nuevo</h1>
+              <div className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 -rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+                <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+              </div>
+              <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
+                Bienvenido de nuevo
+              </h1>
               <p className="text-gray-600">Inicia sesión para continuar</p>
             </div>
 
@@ -742,7 +834,7 @@ const App = () => {
                     type="email"
                     value={loginForm.email}
                     onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
                     placeholder="tu@email.com"
                     required
                   />
@@ -757,7 +849,7 @@ const App = () => {
                     type="password"
                     value={loginForm.password}
                     onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
                     placeholder="Tu contraseña"
                     required
                   />
@@ -773,7 +865,7 @@ const App = () => {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-yellow-200"
               >
                 Iniciar Sesión
               </button>
@@ -784,7 +876,7 @@ const App = () => {
                   <button
                     type="button"
                     onClick={() => setAuthStep('register')}
-                    className="text-blue-600 font-semibold hover:underline"
+                    className="text-yellow-600 font-bold hover:underline"
                   >
                     Regístrate
                   </button>
@@ -794,7 +886,7 @@ const App = () => {
                   <button
                     type="button"
                     onClick={() => setAuthStep('forgotPassword')}
-                    className="text-blue-500 hover:text-blue-400 font-medium"
+                    className="text-yellow-600 hover:text-yellow-700 font-bold transition-all"
                   >
                     Recuperar contraseña
                   </button>
@@ -810,12 +902,12 @@ const App = () => {
   // Pantalla de correo enviado
   if (authStep === 'verificationSent') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-            <Mail className="w-8 h-8 text-blue-600" />
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 flex items-center justify-center">
+        <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-md w-full text-center border-b-8 border-yellow-400 animate-in zoom-in duration-500">
+          <div className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3">
+            <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">¡Verifica tu correo!</h2>
+          <h2 className="text-2xl font-black text-gray-900 mb-4">¡Verifica tu correo!</h2>
           <p className="text-gray-600 mb-8">
             Hemos enviado un enlace de confirmación a <strong>{registerForm.email}</strong>.
             <br /><br />
@@ -823,7 +915,7 @@ const App = () => {
           </p>
           <button
             onClick={() => setAuthStep('login')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
           >
             Volver al Iniciar Sesión
           </button>
@@ -835,11 +927,14 @@ const App = () => {
   // Pantalla de recuperación de contraseña (solicitud)
   if (authStep === 'forgotPassword') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
-        <div className="max-w-md mx-auto pt-12">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+        <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Recuperar Contraseña</h2>
+              <div className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3">
+                <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900 mb-2">Recuperar Contraseña</h2>
               <p className="text-gray-600">Ingresa tu correo para recibir un enlace de recuperación.</p>
             </div>
 
@@ -852,7 +947,7 @@ const App = () => {
                     type="email"
                     value={forgotPasswordEmail}
                     onChange={(e) => setForgotPasswordEmail(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                     placeholder="tu@email.com"
                     required
                   />
@@ -868,7 +963,7 @@ const App = () => {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
               >
                 Enviar Enlace
               </button>
@@ -877,7 +972,7 @@ const App = () => {
             <div className="text-center mt-6">
               <button
                 onClick={() => setAuthStep('login')}
-                className="text-gray-500 hover:text-gray-700 font-medium"
+                className="text-yellow-600 hover:text-yellow-700 font-bold"
               >
                 Volver a Iniciar Sesión
               </button>
@@ -891,11 +986,14 @@ const App = () => {
   // Pantalla de restablecer contraseña (nueva password)
   if (authStep === 'resetPassword') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
-        <div className="max-w-md mx-auto pt-12">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+        <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Nueva Contraseña</h2>
+              <div className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 -rotate-3">
+                <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900 mb-2">Nueva Contraseña</h2>
               <p className="text-gray-600">Ingresa tu nueva contraseña para acceder.</p>
             </div>
 
@@ -908,7 +1006,7 @@ const App = () => {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                     placeholder="Mínimo 6 caracteres"
                     minLength={6}
                     required
@@ -925,9 +1023,9 @@ const App = () => {
 
               <button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all"
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
               >
-                Cambiar Contraseña
+                Restablecer Contraseña
               </button>
             </form>
           </div>
@@ -1043,27 +1141,32 @@ const App = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="max-w-4xl mx-auto">
           {/* Header con botón de logout */}
-          <div className="flex justify-end items-center mb-6 gap-4">
-            <button
-              onClick={async () => {
-                setShowRanking(true);
-                const data = await api.getRanking();
-                setRanking(data);
-              }}
-              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              🏆 Ranking
-            </button>
-
-
-
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
-            >
-              <LogOut className="w-4 h-4" />
-              Salir
-            </button>
+          <div className="flex justify-between items-center mb-6 gap-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-yellow-400 rounded-lg shadow-md rotate-3 flex-shrink-0">
+                <img src={logoPuntoVuela} width="32px" alt="Punto Vuela" />
+              </div>
+              <span className="font-black text-gray-800 text-sm md:text-base hidden sm:block">Digitales</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  setShowRanking(true);
+                  const data = await api.getRanking();
+                  setRanking(data);
+                }}
+                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                🏆 Ranking
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md transform hover:scale-105"
+              >
+                <LogOut className="w-4 h-4" />
+                Salir
+              </button>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
@@ -1086,19 +1189,24 @@ const App = () => {
           </div>
 
           {showRequestForm && (
-            <div className="bg-gray-800 rounded-2xl shadow-xl p-6 mb-6 border border-gray-700">
-              <h3 className="font-semibold text-white mb-4 text-xl">Nueva Solicitud de Ayuda</h3>
+            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 mb-8 border-t-8 border-yellow-500 transition-all animate-in zoom-in duration-300">
+              <h3 className="font-black text-gray-900 mb-6 text-2xl flex items-center gap-2">
+                <span className="p-2 bg-yellow-400 rounded-lg shadow-sm rotate-3">
+                  <AlertCircle className="w-6 h-6 text-gray-900" />
+                </span>
+                Nueva Solicitud de Ayuda
+              </h3>
 
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-2">¿En qué necesitas ayuda?</label>
+              <div className="mb-6">
+                <label className="block text-gray-700 font-bold mb-3 ml-1">¿En qué necesitas ayuda?</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {helpCategories.map(cat => (
                     <button
                       key={cat.id}
                       onClick={() => setRequestData({ ...requestData, category: cat.id })}
-                      className={`p-3 rounded-lg font-medium transition-all ${requestData.category === cat.id
-                        ? 'bg-yellow-500 text-black'
-                        : 'bg-gray-700 text-white hover:bg-gray-600'
+                      className={`p-4 rounded-xl font-bold transition-all transform hover:scale-105 ${requestData.category === cat.id
+                        ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-200 ring-2 ring-yellow-400'
+                        : 'bg-gray-50 text-gray-700 border-2 border-gray-100 hover:border-yellow-200'
                         }`}
                     >
                       {cat.icon} {cat.label}
@@ -1107,27 +1215,27 @@ const App = () => {
                 </div>
               </div>
 
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-2">Describe tu solicitud</label>
+              <div className="mb-6">
+                <label className="block text-gray-700 font-bold mb-3 ml-1">Describe tu solicitud</label>
                 <textarea
                   value={requestData.description}
                   onChange={(e) => setRequestData({ ...requestData, description: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-yellow-500 focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-50 text-gray-800 rounded-xl border-2 border-gray-100 focus:border-yellow-500 focus:outline-none transition-all font-medium"
                   rows={3}
                   placeholder="Explica brevemente lo que necesitas..."
                 />
               </div>
 
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-2">Ubicación</label>
+              <div className="mb-8">
+                <label className="block text-gray-700 font-bold mb-3 ml-1">Ubicación</label>
                 <div className="grid grid-cols-1 gap-2">
                   {predefinedLocations.map(loc => (
                     <button
                       key={loc.id}
                       onClick={() => setSelectedLocationId(loc.id)}
-                      className={`p-3 rounded-lg font-medium transition-all ${selectedLocationId === loc.id
-                        ? 'bg-yellow-500 text-black'
-                        : 'bg-gray-700 text-white hover:bg-gray-600'
+                      className={`p-4 rounded-xl font-bold transition-all transform hover:scale-102 flex items-center gap-3 ${selectedLocationId === loc.id
+                        ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-200 ring-2 ring-yellow-400'
+                        : 'bg-gray-50 text-gray-700 border-2 border-gray-100 hover:border-yellow-200'
                         }`}
                     >
                       {loc.icon} {loc.name}
@@ -1138,9 +1246,9 @@ const App = () => {
 
               <button
                 onClick={createHelpRequest}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all"
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-xl shadow-green-100 flex items-center justify-center gap-2"
               >
-                Enviar Solicitud
+                Confirmar y Enviar Solicitud
               </button>
             </div>
           )}
@@ -1155,7 +1263,7 @@ const App = () => {
             ) : (
               <div className="space-y-4">
                 {myRequests.map(req => (
-                  <div key={req.id} className="border border-gray-700 bg-gray-700 rounded-lg p-4">
+                  <div key={req.id} className="bg-white border-2 border-gray-100 rounded-[2rem] p-6 shadow-md hover:border-yellow-200 transition-all group">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -1171,8 +1279,8 @@ const App = () => {
                             {req.status === 'pending' ? 'Pendiente' : req.status === 'accepted' ? 'Aceptada' : req.status === 'expired' ? 'Expirada' : 'Completada'}
                           </span>
                         </div>
-                        <p className="text-white text-sm mb-2">{req.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-gray-400">
+                        <p className="text-gray-800 font-medium mb-3">{req.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-gray-400 font-medium">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" /> {req.timestamp}
                           </span>
@@ -1181,18 +1289,16 @@ const App = () => {
                           )}
                         </div>
                         {(req.volunteer || req.status === 'expired') && (
-                          <div className="mt-2 flex items-center justify-between">
-                            <span className={`text-sm font-medium ${req.status === 'expired' ? 'text-red-400' : 'text-green-400'}`}>
+                          <div className="mt-4 flex flex-col gap-3">
+                            <span className={`text-sm font-bold ${req.status === 'expired' ? 'text-red-500' : 'text-green-600'}`}>
                               {req.status === 'expired' ? '⚠️ Nadie acudió a tiempo' : `✓ Voluntario: ${req.volunteer}`}
                             </span>
-                            {(req.volunteer || req.status === 'expired') && (
-                              <button
-                                onClick={() => openChat(req.id)}
-                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                              >
-                                💬 Chat
-                              </button>
-                            )}
+                            <button
+                              onClick={() => openChat(req.id)}
+                              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                            >
+                              💬 Abrir Chat
+                            </button>
                           </div>
                         )}
                       </div>
@@ -1216,28 +1322,33 @@ const App = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header con botón de logout */}
-          <div className="flex justify-end items-center mb-6 gap-4">
-            <button
-              onClick={async () => {
-                setShowRanking(true);
-                const data = await api.getRanking();
-                setRanking(data);
-              }}
-              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              🏆 Ranking
-            </button>
-
-
-
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
-            >
-              <LogOut className="w-4 h-4" />
-              Salir
-            </button>
+          {/* Header con logout */}
+          <div className="flex justify-between items-center mb-6 gap-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-yellow-400 rounded-lg shadow-md -rotate-3 flex-shrink-0">
+                <img src={logoPuntoVuela} width="32px" alt="Punto Vuela" />
+              </div>
+              <span className="font-black text-gray-800 text-sm md:text-base hidden sm:block">Digitales</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  setShowRanking(true);
+                  const data = await api.getRanking();
+                  setRanking(data);
+                }}
+                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                🏆 Ranking
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md transform hover:scale-105"
+              >
+                <LogOut className="w-4 h-4" />
+                Salir
+              </button>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
@@ -1340,20 +1451,31 @@ const App = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto md:ml-4">
-                        <button
-                          onClick={() => openChat(help.id)}
-                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
-                        >
-                          💬 Chat
-                        </button>
+                      <div className="flex flex-col gap-2 w-full md:w-auto md:ml-4">
+                        <div className="flex flex-row md:flex-col gap-2">
+                          <button
+                            onClick={() => openChat(help.id)}
+                            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                          >
+                            💬 Chat
+                          </button>
+                          {help.status === 'accepted' && (
+                            <button
+                              onClick={() => completeHelp(help.id)}
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                            >
+                              <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                              <span className="whitespace-nowrap">Completar</span>
+                            </button>
+                          )}
+                        </div>
                         {help.status === 'accepted' && (
                           <button
-                            onClick={() => completeHelp(help.id)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all transform hover:scale-105"
+                            onClick={() => cancelHelp(help.id)}
+                            className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 text-sm rounded-lg font-semibold transition-all shadow-md flex items-center justify-center gap-2"
                           >
-                            <CheckCircle className="w-5 h-5 inline mr-2" />
-                            Marcar como Completada
+                            <AlertCircle className="w-4 h-4" />
+                            Cancelar Ayuda
                           </button>
                         )}
                       </div>
