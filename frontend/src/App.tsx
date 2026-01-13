@@ -182,6 +182,15 @@ const App = () => {
         else if (t.estado === 'COMPLETADO') status = 'completed';
         else if (t.estado === 'EXPIRADO') status = 'expired';
 
+        let locationData = { name: t.ubicacion_origen || 'No especificada', icon: '📍' };
+        try {
+          if (t.ubicacion_origen && (t.ubicacion_origen.startsWith('{') || t.ubicacion_origen.startsWith('['))) {
+            locationData = JSON.parse(t.ubicacion_origen);
+          }
+        } catch (e) {
+          console.error('Error parsing location for request', t.id, e);
+        }
+
         return {
           id: t.id,
           userName: t.solicitante?.nombre_completo || 'Usuario',
@@ -189,7 +198,7 @@ const App = () => {
           userAge: t.solicitante?.edad?.toString() || 'N/A',
           category: t.titulo,
           description: t.descripcion,
-          location: JSON.parse(t.ubicacion_origen || '{}'),
+          location: locationData,
           timestamp: new Date(t.fecha_creacion).toLocaleString('es-ES'),
           status,
           volunteer: t.voluntario?.nombre_completo || null,

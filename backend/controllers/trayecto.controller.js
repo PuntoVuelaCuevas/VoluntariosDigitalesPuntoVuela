@@ -45,15 +45,22 @@ exports.createTrayecto = async (req, res) => {
 exports.findAllTrayectos = async (req, res) => {
     try {
         const { Op } = require('sequelize');
-        const tiempoExpiracion = new Date(Date.now() - 30 * 60 * 1000);
+        const now = new Date();
+        const tiempoExpiracion = new Date(now.getTime() - 30 * 60 * 1000);
+
+        console.log(`Checking for expired requests. Now: ${now.toISOString()}, Expiration threshold: ${tiempoExpiracion.toISOString()}`);
 
         // Cambiar a EXPIRADO en lugar de eliminar
-        await Trayecto.update({ estado: 'EXPIRADO' }, {
+        const [updatedCount] = await Trayecto.update({ estado: 'EXPIRADO' }, {
             where: {
                 estado: 'PENDIENTE',
                 fecha_creacion: { [Op.lt]: tiempoExpiracion }
             }
         });
+
+        if (updatedCount > 0) {
+            console.log(`Marked ${updatedCount} requests as EXPIRADO.`);
+        }
 
         const trayectos = await Trayecto.findAll({
             where: {
@@ -68,8 +75,11 @@ exports.findAllTrayectos = async (req, res) => {
             include: [
                 { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo', 'edad', 'genero'] },
                 { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
-            ]
+            ],
+            order: [['fecha_creacion', 'DESC']]
         });
+
+        console.log(`Returning ${trayectos.length} total requests.`);
         res.status(200).json(trayectos);
     } catch (error) {
         console.error('Error retrieving journeys:', error);
