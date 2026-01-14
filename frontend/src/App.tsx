@@ -629,13 +629,9 @@ const App = () => {
     }, [showChat, activeChatId, helpRequests]);
 
     useEffect(() => {
+      // Cuando lleguen mensajes nuevos, baja siempre abajo del todo
       if (scrollRef.current) {
-        const el = scrollRef.current;
-        const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-        // Solo auto-scroll si el usuario ya está cerca del final
-        if (distanceToBottom < 80) {
-          el.scrollTop = el.scrollHeight;
-        }
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
     }, [chatMessages]);
 
@@ -680,19 +676,19 @@ const App = () => {
 
           {/* Input - Solo si está activo */}
           {helpRequests.find(r => r.id === activeChatId)?.status === 'accepted' ? (
-            <form onSubmit={handleSendMessage} className="p-5 border-t flex gap-2 bg-white rounded-b-3xl shadow-inner">
+            <form onSubmit={handleSendMessage} className="p-5 border-t flex items-center gap-2 bg-white rounded-b-3xl shadow-inner w-full overflow-hidden">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Escribe un mensaje..."
-                className="flex-1 px-5 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all font-medium"
+                className="flex-1 min-w-0 px-5 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all font-medium"
                 autoFocus
               />
               <button
                 type="submit"
                 disabled={!newMessage.trim()}
-                className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center"
+                className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center flex-shrink-0 w-12 h-12"
               >
                 <Send className="w-6 h-6" />
               </button>
