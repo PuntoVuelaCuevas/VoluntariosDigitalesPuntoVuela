@@ -605,21 +605,37 @@ const App = () => {
       const fetchMsgs = async () => {
         try {
           const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
-          setChatMessages(msgs);
+          // Evitar re-render innecesario si los mensajes no han cambiado
+          setChatMessages((prev) => {
+            if (!Array.isArray(prev) || prev.length !== msgs.length) {
+              return msgs;
+            }
+
+            const isSame = prev.every((m: any, idx: number) =>
+              m.id === msgs[idx].id && m.contenido === msgs[idx].contenido
+            );
+
+            return isSame ? prev : msgs;
+          });
         } catch (error) {
           console.error('Error polling messages:', error);
         }
       };
 
       if (!isReadonly) {
-        const interval = setInterval(fetchMsgs, 3000); // Poll cada 3 segundos
+        const interval = setInterval(fetchMsgs, 4000); // Poll cada 4 segundos para reducir saltos
         return () => clearInterval(interval);
       }
     }, [showChat, activeChatId, helpRequests]);
 
     useEffect(() => {
       if (scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        const el = scrollRef.current;
+        const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+        // Solo auto-scroll si el usuario ya está cerca del final
+        if (distanceToBottom < 80) {
+          el.scrollTop = el.scrollHeight;
+        }
       }
     }, [chatMessages]);
 
