@@ -1428,7 +1428,7 @@ const App = () => {
                     <div key={req.id} className="bg-white border-2 border-gray-100 rounded-[2rem] p-6 shadow-md hover:border-yellow-200 transition-all group relative">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
                             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-600 text-white">
                               {getCategoryLabel(req.category)}
                             </span>
@@ -1461,6 +1461,16 @@ const App = () => {
                               >
                                 💬 Abrir Chat
                               </button>
+                              {req.status === 'expired' && (
+                                <button
+                                  onClick={() => deleteHelpRequest(req.id)}
+                                  className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                                  title="Eliminar solicitud"
+                                >
+                                  <span className="text-lg leading-none">🗑️</span>
+                                  Eliminar solicitud
+                                </button>
+                              )}
                               {req.status === 'accepted' && !req.confirmacion_solicitante && (
                                 <button
                                   onClick={() => confirmArrival(req.id)}
@@ -1476,19 +1486,20 @@ const App = () => {
                               )}
                             </div>
                           )}
+                          {req.status === 'pending' && (
+                            <div className="mt-4">
+                              <button
+                                onClick={() => deleteHelpRequest(req.id)}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2"
+                                title="Eliminar solicitud"
+                              >
+                                <span className="text-lg leading-none">🗑️</span>
+                                Eliminar solicitud
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      {(req.status === 'pending' || req.status === 'expired') && (
-                        <button
-                          onClick={() => deleteHelpRequest(req.id)}
-                          className={`absolute p-2 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all shadow-sm flex items-center justify-center border border-red-100 hover:scale-110 active:scale-95 ${req.status === 'expired' ? 'top-6 right-6' : 'bottom-6 right-6'
-                            }`}
-                          title="Eliminar solicitud"
-                        >
-                          <span className="text-lg leading-none">🗑️</span>
-                        </button>
-                      )}
                     </div>
                   ))}
                 </div>
