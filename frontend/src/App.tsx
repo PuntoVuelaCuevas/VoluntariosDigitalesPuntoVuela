@@ -61,6 +61,139 @@ interface ModalState extends ModalConfig {
   isOpen: boolean;
 }
 
+interface ChatWindowProps {
+  showChat: boolean;
+  activeChatId: number | null;
+  userProfile: UserProfile | null;
+  helpRequests: HelpRequest[];
+  chatMessages: any[];
+  setChatMessages: (messages: any[] | ((prev: any[]) => any[])) => void;
+  setShowChat: (show: boolean) => void;
+  setActiveChatId: (id: number | null) => void;
+  handleSendMessage: (e: React.FormEvent) => Promise<void>;
+  newMessage: string;
+  setNewMessage: (message: string) => void;
+  isSendingMessage: boolean;
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({
+  showChat,
+  activeChatId,
+  userProfile,
+  helpRequests,
+  chatMessages,
+  setChatMessages,
+  setShowChat,
+  setActiveChatId,
+  handleSendMessage,
+  newMessage,
+  setNewMessage,
+  isSendingMessage
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showChat || !activeChatId) return;
+
+    const currentRequest = helpRequests.find(r => r.id === activeChatId);
+    const isReadonly = currentRequest?.status !== 'accepted';
+
+    const fetchMsgs = async () => {
+      try {
+        if (!activeChatId) return;
+        const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
+        setChatMessages((prev) => {
+          if (!Array.isArray(prev) || prev.length !== msgs.length) {
+            return msgs;
+          }
+
+          const isSame = prev.every((m: any, idx: number) =>
+            m.id === msgs[idx].id && m.contenido === msgs[idx].contenido
+          );
+
+          return isSame ? prev : msgs;
+        });
+      } catch (error) {
+        console.error('Error polling messages:', error);
+      }
+    };
+
+    if (!isReadonly) {
+      const interval = setInterval(fetchMsgs, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [showChat, activeChatId, helpRequests, setChatMessages]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
+
+  if (!showChat || !activeChatId) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col h-[80vh] animate-in fade-in zoom-in duration-300">
+        <div className="p-5 border-b flex justify-between items-center bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-t-3xl shadow-lg">
+          <h3 className="font-bold flex items-center gap-2 text-lg">
+            <MessageSquare className="w-6 h-6" /> Chat de Ayuda
+          </h3>
+          <button onClick={() => { setShowChat(false); setActiveChatId(null); }} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50">
+          {chatMessages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4 opacity-60">
+              <MessageSquare className="w-12 h-12" />
+              <p className="text-center italic">No hay mensajes aún.</p>
+            </div>
+          ) : (
+            chatMessages.map((m: any) => (
+              <div key={m.id} className={`flex flex-col ${m.emisor_id === userProfile?.id ? 'items-end' : 'items-start animate-in slide-in-from-left-2'}`}>
+                <span className="text-[10px] text-gray-500 mb-1 px-1 font-semibold uppercase tracking-wider">
+                  {m.emisor_id === userProfile?.id ? 'Tú' : m.emisor?.nombre_usuario || 'Usuario'}
+                </span>
+                <div className={`max-w-[85%] p-4 rounded-2xl text-sm shadow-sm ${m.emisor_id === userProfile?.id
+                  ? 'bg-yellow-500 text-white rounded-tr-none'
+                  : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
+                  }`}>
+                  {m.contenido}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        {helpRequests.find(r => r.id === activeChatId)?.status === 'accepted' ? (
+          <form onSubmit={handleSendMessage} className="p-5 border-t flex items-center gap-2 bg-white rounded-b-3xl shadow-inner w-full overflow-hidden">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Escribe un mensaje..."
+              className="flex-1 min-w-0 px-5 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all font-medium"
+              autoFocus
+            />
+            <button
+              type="submit"
+              disabled={!newMessage.trim() || isSendingMessage}
+              className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center flex-shrink-0 w-12 h-12"
+            >
+              <Send className="w-6 h-6" />
+            </button>
+          </form>
+        ) : (
+          <div className="p-5 border-t bg-gray-100 text-gray-500 text-center rounded-b-3xl italic text-sm">
+            El chat está en modo solo lectura porque la solicitud ha finalizado o expirado.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
 const CountdownTimer = ({ timestamp }: { timestamp: string }) => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
@@ -141,6 +274,7 @@ const App = () => {
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   // Estado para el modal personalizado
   const [modal, setModal] = useState<ModalState>({
@@ -574,8 +708,9 @@ const App = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeChatId || !userProfile?.id || !newMessage.trim()) return;
+    if (!activeChatId || !userProfile?.id || !newMessage.trim() || isSendingMessage) return;
 
+    setIsSendingMessage(true);
     try {
       const msgData = {
         trayecto_id: activeChatId,
@@ -589,118 +724,9 @@ const App = () => {
       setChatMessages(msgs);
     } catch (error) {
       console.error('Error sending message:', error);
+    } finally {
+      setIsSendingMessage(false);
     }
-  };
-
-  // Componente de Ventana de Chat
-  const ChatWindow = () => {
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-      if (!showChat || !activeChatId) return;
-
-      const currentRequest = helpRequests.find(r => r.id === activeChatId);
-      const isReadonly = currentRequest?.status !== 'accepted';
-
-      const fetchMsgs = async () => {
-        try {
-          const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
-          // Evitar re-render innecesario si los mensajes no han cambiado
-          setChatMessages((prev) => {
-            if (!Array.isArray(prev) || prev.length !== msgs.length) {
-              return msgs;
-            }
-
-            const isSame = prev.every((m: any, idx: number) =>
-              m.id === msgs[idx].id && m.contenido === msgs[idx].contenido
-            );
-
-            return isSame ? prev : msgs;
-          });
-        } catch (error) {
-          console.error('Error polling messages:', error);
-        }
-      };
-
-      if (!isReadonly) {
-        const interval = setInterval(fetchMsgs, 4000); // Poll cada 4 segundos para reducir saltos
-        return () => clearInterval(interval);
-      }
-    }, [showChat, activeChatId, helpRequests]);
-
-    useEffect(() => {
-      // Cuando lleguen mensajes nuevos, baja siempre abajo del todo
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }
-    }, [chatMessages]);
-
-    if (!showChat || !activeChatId) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-sm">
-        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col h-[80vh] animate-in fade-in zoom-in duration-300">
-          {/* Header */}
-          <div className="p-5 border-b flex justify-between items-center bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-t-3xl shadow-lg">
-            <h3 className="font-bold flex items-center gap-2 text-lg">
-              <MessageSquare className="w-6 h-6" /> Chat de Ayuda
-            </h3>
-            <button onClick={() => { setShowChat(false); setActiveChatId(null); }} className="hover:bg-white/20 p-2 rounded-full transition-colors">
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50 scroll-smooth">
-            {chatMessages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4 opacity-60">
-                <MessageSquare className="w-12 h-12" />
-                <p className="text-center italic">No hay mensajes aún.</p>
-              </div>
-            ) : (
-              chatMessages.map((m: any) => (
-                <div key={m.id} className={`flex flex-col ${m.emisor_id === userProfile?.id ? 'items-end' : 'items-start animate-in slide-in-from-left-2'}`}>
-                  <span className="text-[10px] text-gray-500 mb-1 px-1 font-semibold uppercase tracking-wider">
-                    {m.emisor_id === userProfile?.id ? 'Tú' : m.emisor?.nombre_usuario || 'Usuario'}
-                  </span>
-                  <div className={`max-w-[85%] p-4 rounded-2xl text-sm shadow-sm ${m.emisor_id === userProfile?.id
-                    ? 'bg-yellow-500 text-white rounded-tr-none'
-                    : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
-                    }`}>
-                    {m.contenido}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Input - Solo si está activo */}
-          {helpRequests.find(r => r.id === activeChatId)?.status === 'accepted' ? (
-            <form onSubmit={handleSendMessage} className="p-5 border-t flex items-center gap-2 bg-white rounded-b-3xl shadow-inner w-full overflow-hidden">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Escribe un mensaje..."
-                className="flex-1 min-w-0 px-5 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition-all font-medium"
-                autoFocus
-              />
-              <button
-                type="submit"
-                disabled={!newMessage.trim()}
-                className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center flex-shrink-0 w-12 h-12"
-              >
-                <Send className="w-6 h-6" />
-              </button>
-            </form>
-          ) : (
-            <div className="p-5 border-t bg-gray-100 text-gray-500 text-center rounded-b-3xl italic text-sm">
-              El chat está en modo solo lectura porque la solicitud ha finalizado o expirado.
-            </div>
-          )}
-        </div>
-      </div>
-    );
   };
 
   // ===== PANTALLAS =====
@@ -1518,7 +1544,20 @@ const App = () => {
               )}
             </div>
           </div>
-          <ChatWindow />
+          <ChatWindow
+            showChat={showChat}
+            activeChatId={activeChatId}
+            userProfile={userProfile}
+            helpRequests={helpRequests}
+            chatMessages={chatMessages}
+            setChatMessages={setChatMessages}
+            setShowChat={setShowChat}
+            setActiveChatId={setActiveChatId}
+            handleSendMessage={handleSendMessage}
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            isSendingMessage={isSendingMessage}
+          />
         </div>
       </>
     );
@@ -1717,7 +1756,20 @@ const App = () => {
               )}
             </div>
           </div>
-          <ChatWindow />
+          <ChatWindow
+            showChat={showChat}
+            activeChatId={activeChatId}
+            userProfile={userProfile}
+            helpRequests={helpRequests}
+            chatMessages={chatMessages}
+            setChatMessages={setChatMessages}
+            setShowChat={setShowChat}
+            setActiveChatId={setActiveChatId}
+            handleSendMessage={handleSendMessage}
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            isSendingMessage={isSendingMessage}
+          />
         </div>
       </>
     );
