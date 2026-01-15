@@ -3,6 +3,7 @@ import { AlertCircle, Users, User, Heart, Clock, CheckCircle, Mail, Lock, LogOut
 import './index.css';
 import * as api from './services/api';
 import logoPuntoVuela from './assets/Logo Punto Vuela.jpg';
+import Footer from './components/Footer';
 
 // --- Interfaces ---
 interface UserProfile {
@@ -734,495 +735,513 @@ const App = () => {
   // Pantalla ¿Cómo funciona?
   if (authStep === 'howItWorks') {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 md:p-8">
-          <div className="max-w-4xl mx-auto">
-            <button
-              onClick={() => {
-                if (userProfile) {
-                  setAuthStep('dashboard');
-                } else {
-                  setAuthStep('register');
-                }
-              }}
-              className="mb-8 flex items-center gap-2 text-gray-600 hover:text-yellow-600 font-bold transition-all bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md"
-            >
-              ← Volver
-            </button>
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 md:p-8">
+            <div className="max-w-4xl mx-auto">
+              <button
+                onClick={() => {
+                  if (userProfile) {
+                    setAuthStep('dashboard');
+                  } else {
+                    setAuthStep('register');
+                  }
+                }}
+                className="mb-8 flex items-center gap-2 text-gray-600 hover:text-yellow-600 font-bold transition-all bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md"
+              >
+                ← Volver
+              </button>
 
-            <div className="text-center mb-12 animate-in fade-in slide-in-from-top duration-700">
-              <div className="inline-block p-4 bg-yellow-400 rounded-3xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-                <img src={logoPuntoVuela} width="120px" alt="Punto Vuela" />
+              <div className="text-center mb-12 animate-in fade-in slide-in-from-top duration-700">
+                <div className="inline-block p-4 bg-yellow-400 rounded-3xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+                  <img src={logoPuntoVuela} width="120px" alt="Punto Vuela" />
+                </div>
+                <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
+                  Voluntarios Digitales
+                </h1>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                  Uniendo generaciones a través de la tecnología. Conectamos a personas mayores que necesitan ayuda digital con jóvenes dispuestos a enseñar.
+                </p>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
-                Voluntarios Digitales
-              </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                Uniendo generaciones a través de la tecnología. Conectamos a personas mayores que necesitan ayuda digital con jóvenes dispuestos a enseñar.
-              </p>
-            </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-yellow-400 transform transition-all hover:-translate-y-2">
-                <div className="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">🤝</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">Conexión Humana</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Más que una ayuda técnica, creamos vínculos entre vecinos de la misma localidad.</p>
+              <div className="grid md:grid-cols-3 gap-8 mb-16">
+                <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-yellow-400 transform transition-all hover:-translate-y-2">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">🤝</div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">Conexión Humana</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">Más que una ayuda técnica, creamos vínculos entre vecinos de la misma localidad.</p>
+                </div>
+                <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-orange-400 transform transition-all hover:-translate-y-2">
+                  <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">📱</div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">Soporte Digital</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">Desde configurar WhatsApp hasta realizar cualquier trámite digital.</p>
+                </div>
+                <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-yellow-500 transform transition-all hover:-translate-y-2">
+                  <div className="w-16 h-16 bg-yellow-200 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">🏆</div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">Premios y Reconocimiento</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">Los voluntarios más activos reciben premios y el agradecimiento de su comunidad.</p>
+                </div>
               </div>
-              <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-orange-400 transform transition-all hover:-translate-y-2">
-                <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">📱</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">Soporte Digital</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Desde configurar WhatsApp hasta realizar cualquier trámite digital.</p>
-              </div>
-              <div className="bg-white p-8 rounded-[2rem] shadow-xl border-b-8 border-yellow-500 transform transition-all hover:-translate-y-2">
-                <div className="w-16 h-16 bg-yellow-200 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner">🏆</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">Premios y Reconocimiento</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Los voluntarios más activos reciben premios y el agradecimiento de su comunidad.</p>
-              </div>
-            </div>
 
-            <div className="bg-yellow-400 rounded-[3rem] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
-              <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
-              <div className="relative z-10">
-                <h2 className="text-3xl font-black text-white mb-6">¿Preparado para marcar la diferencia?</h2>
-                <button
-                  onClick={() => setAuthStep('register')}
-                  className="bg-white text-yellow-600 px-8 py-4 rounded-2xl font-black text-lg shadow-xl hover:shadow-2xl hover:bg-yellow-50 transition-all transform hover:scale-105 active:scale-95"
-                >
-                  ¡Comenzar ahora!
-                </button>
+              <div className="bg-yellow-400 rounded-[3rem] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div className="relative z-10">
+                  <h2 className="text-3xl font-black text-white mb-6">¿Preparado para marcar la diferencia?</h2>
+                  <button
+                    onClick={() => setAuthStep('register')}
+                    className="bg-white text-yellow-600 px-8 py-4 rounded-2xl font-black text-lg shadow-xl hover:shadow-2xl hover:bg-yellow-50 transition-all transform hover:scale-105 active:scale-95"
+                  >
+                    ¡Comenzar ahora!
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   // Pantalla de registro
   if (authStep === 'register') {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
-          <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
-              <div className="text-center mb-8">
-                <div
-                  onClick={() => setAuthStep('howItWorks')}
-                  className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer"
-                >
-                  <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
-                </div>
-                <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
-                  Voluntarios Digitales
-                </h1>
-                <p className="text-gray-600">Crea tu cuenta para comenzar</p>
-                <button
-                  onClick={() => setAuthStep('howItWorks')}
-                  className="mt-3 text-yellow-600 font-bold hover:text-yellow-700 transition-all flex items-center gap-1 mx-auto group"
-                >
-                  ¿Cómo funciona?
-                  <Heart className="w-4 h-4 group-hover:scale-125 transition-transform text-yellow-500 fill-yellow-500" />
-                </button>
-              </div>
-
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre Completo</label>
-                  <input
-                    type="text"
-                    value={registerForm.nombre_completo}
-                    onChange={(e) => setRegisterForm({ ...registerForm, nombre_completo: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
-                    placeholder="Tu nombre completo"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={registerForm.email}
-                      onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                      className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
-                      placeholder="tu@email.com"
-                      required
-                    />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+            <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+              <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
+                <div className="text-center mb-8">
+                  <div
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer"
+                  >
+                    <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
                   </div>
+                  <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
+                    Voluntarios Digitales
+                  </h1>
+                  <p className="text-gray-600">Crea tu cuenta para comenzar</p>
+                  <button
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="mt-3 text-yellow-600 font-bold hover:text-yellow-700 transition-all flex items-center gap-1 mx-auto group"
+                  >
+                    ¿Cómo funciona?
+                    <Heart className="w-4 h-4 group-hover:scale-125 transition-transform text-yellow-500 fill-yellow-500" />
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="password"
-                      value={registerForm.password}
-                      onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                      className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
-                      placeholder="Mínimo 6 caracteres"
-                      minLength={6}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleRegister} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Edad</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre Completo</label>
                     <input
-                      type="number"
-                      value={registerForm.edad}
-                      onChange={(e) => setRegisterForm({ ...registerForm, edad: e.target.value })}
+                      type="text"
+                      value={registerForm.nombre_completo}
+                      onChange={(e) => setRegisterForm({ ...registerForm, nombre_completo: e.target.value })}
                       className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
-                      placeholder="Edad"
-                      min="1"
-                      max="120"
+                      placeholder="Tu nombre completo"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Género</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="email"
+                        value={registerForm.email}
+                        onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
+                        placeholder="tu@email.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="password"
+                        value={registerForm.password}
+                        onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
+                        placeholder="Mínimo 6 caracteres"
+                        minLength={6}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Edad</label>
+                      <input
+                        type="number"
+                        value={registerForm.edad}
+                        onChange={(e) => setRegisterForm({ ...registerForm, edad: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
+                        placeholder="Edad"
+                        min="1"
+                        max="120"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Género</label>
+                      <select
+                        value={registerForm.genero}
+                        onChange={(e) => setRegisterForm({ ...registerForm, genero: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
+                        required
+                      >
+                        <option value="">Seleccionar</option>
+                        <option value="Hombre">Hombre</option>
+                        <option value="Mujer">Mujer</option>
+                        <option value="Otro">Otro</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Localidad</label>
                     <select
-                      value={registerForm.genero}
-                      onChange={(e) => setRegisterForm({ ...registerForm, genero: e.target.value })}
+                      value={registerForm.localidad}
+                      onChange={(e) => setRegisterForm({ ...registerForm, localidad: e.target.value })}
                       className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                       required
                     >
                       <option value="">Seleccionar</option>
-                      <option value="Hombre">Hombre</option>
-                      <option value="Mujer">Mujer</option>
-                      <option value="Otro">Otro</option>
+                      <option value="Cuevas del Becerro">Cuevas del Becerro</option>
                     </select>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Localidad</label>
-                  <select
-                    value={registerForm.localidad}
-                    onChange={(e) => setRegisterForm({ ...registerForm, localidad: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
-                    required
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 text-center">¿Cómo quieres usar la plataforma?</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setRegisterForm({ ...registerForm, rol: 'solicitante' })}
+                        className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${registerForm.rol === 'solicitante'
+                          ? 'border-yellow-500 bg-yellow-50'
+                          : 'border-gray-200 hover:border-yellow-200'
+                          }`}
+                      >
+                        <User className={`w-8 h-8 ${registerForm.rol === 'solicitante' ? 'text-yellow-600' : 'text-gray-400'}`} />
+                        <span className={`font-bold ${registerForm.rol === 'solicitante' ? 'text-yellow-700' : 'text-gray-600'}`}>¡Ayúdame!</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRegisterForm({ ...registerForm, rol: 'voluntario' })}
+                        className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${registerForm.rol === 'voluntario'
+                          ? 'border-yellow-500 bg-yellow-50'
+                          : 'border-gray-200 hover:border-yellow-200'
+                          }`}
+                      >
+                        <Users className={`w-8 h-8 ${registerForm.rol === 'voluntario' ? 'text-yellow-600' : 'text-gray-400'}`} />
+                        <span className={`font-bold ${registerForm.rol === 'voluntario' ? 'text-yellow-700' : 'text-gray-600'}`}>Voluntario</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mensaje de error (Registro) */}
+                  {registerError && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm text-center font-bold animate-pulse">
+                      {registerError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-yellow-200"
                   >
-                    <option value="">Seleccionar</option>
-                    <option value="Cuevas del Becerro">Cuevas del Becerro</option>
-                  </select>
-                </div>
+                    Crear Cuenta
+                  </button>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3 text-center">¿Cómo quieres usar la plataforma?</label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setRegisterForm({ ...registerForm, rol: 'solicitante' })}
-                      className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${registerForm.rol === 'solicitante'
-                        ? 'border-yellow-500 bg-yellow-50'
-                        : 'border-gray-200 hover:border-yellow-200'
-                        }`}
-                    >
-                      <User className={`w-8 h-8 ${registerForm.rol === 'solicitante' ? 'text-yellow-600' : 'text-gray-400'}`} />
-                      <span className={`font-bold ${registerForm.rol === 'solicitante' ? 'text-yellow-700' : 'text-gray-600'}`}>¡Ayúdame!</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setRegisterForm({ ...registerForm, rol: 'voluntario' })}
-                      className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${registerForm.rol === 'voluntario'
-                        ? 'border-yellow-500 bg-yellow-50'
-                        : 'border-gray-200 hover:border-yellow-200'
-                        }`}
-                    >
-                      <Users className={`w-8 h-8 ${registerForm.rol === 'voluntario' ? 'text-yellow-600' : 'text-gray-400'}`} />
-                      <span className={`font-bold ${registerForm.rol === 'voluntario' ? 'text-yellow-700' : 'text-gray-600'}`}>Voluntario</span>
-                    </button>
+                  <div className="text-center mt-4">
+                    <p className="text-gray-600">
+                      ¿Ya tienes cuenta?{' '}
+                      <button
+                        type="button"
+                        onClick={() => setAuthStep('login')}
+                        className="text-yellow-600 font-bold hover:underline"
+                      >
+                        Inicia Sesión
+                      </button>
+                    </p>
                   </div>
-                </div>
-
-                {/* Mensaje de error (Registro) */}
-                {registerError && (
-                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm text-center font-bold animate-pulse">
-                    {registerError}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-yellow-200"
-                >
-                  Crear Cuenta
-                </button>
-
-                <div className="text-center mt-4">
-                  <p className="text-gray-600">
-                    ¿Ya tienes cuenta?{' '}
-                    <button
-                      type="button"
-                      onClick={() => setAuthStep('login')}
-                      className="text-yellow-600 font-bold hover:underline"
-                    >
-                      Inicia Sesión
-                    </button>
-                  </p>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   // Pantalla de Login
   if (authStep === 'login') {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
-          <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
-              <div className="text-center mb-8">
-                <div
-                  onClick={() => setAuthStep('howItWorks')}
-                  className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 -rotate-3 hover:rotate-0 transition-transform cursor-pointer"
-                >
-                  <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+            <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+              <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
+                <div className="text-center mb-8">
+                  <div
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 -rotate-3 hover:rotate-0 transition-transform cursor-pointer"
+                  >
+                    <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+                  </div>
+                  <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
+                    Bienvenido de nuevo
+                  </h1>
+                  <p className="text-gray-600">Inicia sesión para continuar</p>
                 </div>
-                <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
-                  Bienvenido de nuevo
-                </h1>
-                <p className="text-gray-600">Inicia sesión para continuar</p>
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="email"
+                        value={loginForm.email}
+                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
+                        placeholder="tu@email.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="password"
+                        value={loginForm.password}
+                        onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
+                        placeholder="Tu contraseña"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Mensaje de error (Login) */}
+                  {loginError && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm text-center font-bold animate-pulse">
+                      {loginError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-yellow-200"
+                  >
+                    Iniciar Sesión
+                  </button>
+
+                  <div className="text-center mt-4">
+                    <p className="text-gray-600">
+                      ¿No tienes cuenta?{' '}
+                      <button
+                        type="button"
+                        onClick={() => setAuthStep('register')}
+                        className="text-yellow-600 font-bold hover:underline"
+                      >
+                        Regístrate
+                      </button>
+                    </p>
+                    <p className="text-gray-600 mt-2">
+                      ¿Olvidaste tu contraseña?{' '}
+                      <button
+                        type="button"
+                        onClick={() => setAuthStep('forgotPassword')}
+                        className="text-yellow-600 hover:text-yellow-700 font-bold transition-all"
+                      >
+                        Recuperar contraseña
+                      </button>
+                    </p>
+                  </div>
+                </form>
               </div>
-
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                      className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
-                      placeholder="tu@email.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="password"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
-                      placeholder="Tu contraseña"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Mensaje de error (Login) */}
-                {loginError && (
-                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm text-center font-bold animate-pulse">
-                    {loginError}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-yellow-200"
-                >
-                  Iniciar Sesión
-                </button>
-
-                <div className="text-center mt-4">
-                  <p className="text-gray-600">
-                    ¿No tienes cuenta?{' '}
-                    <button
-                      type="button"
-                      onClick={() => setAuthStep('register')}
-                      className="text-yellow-600 font-bold hover:underline"
-                    >
-                      Regístrate
-                    </button>
-                  </p>
-                  <p className="text-gray-600 mt-2">
-                    ¿Olvidaste tu contraseña?{' '}
-                    <button
-                      type="button"
-                      onClick={() => setAuthStep('forgotPassword')}
-                      className="text-yellow-600 hover:text-yellow-700 font-bold transition-all"
-                    >
-                      Recuperar contraseña
-                    </button>
-                  </p>
-                </div>
-              </form>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   // Pantalla de correo enviado
   if (authStep === 'verificationSent') {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 flex items-center justify-center">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-md w-full text-center border-b-8 border-yellow-400 animate-in zoom-in duration-500">
-            <div
-              onClick={() => setAuthStep('howItWorks')}
-              className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer"
-            >
-              <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 flex items-center justify-center">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-md w-full text-center border-b-8 border-yellow-400 animate-in zoom-in duration-500">
+              <div
+                onClick={() => setAuthStep('howItWorks')}
+                className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer"
+              >
+                <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900 mb-4">¡Verifica tu correo!</h2>
+              <p className="text-gray-600 mb-8">
+                Hemos enviado un enlace de confirmación a <strong>{registerForm.email}</strong>.
+                <br /><br />
+                Por favor, revisa tu bandeja de entrada (y el spam) para activar tu cuenta.
+              </p>
+              <button
+                onClick={() => setAuthStep('login')}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
+              >
+                Volver al Iniciar Sesión
+              </button>
             </div>
-            <h2 className="text-2xl font-black text-gray-900 mb-4">¡Verifica tu correo!</h2>
-            <p className="text-gray-600 mb-8">
-              Hemos enviado un enlace de confirmación a <strong>{registerForm.email}</strong>.
-              <br /><br />
-              Por favor, revisa tu bandeja de entrada (y el spam) para activar tu cuenta.
-            </p>
-            <button
-              onClick={() => setAuthStep('login')}
-              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
-            >
-              Volver al Iniciar Sesión
-            </button>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   // Pantalla de recuperación de contraseña (solicitud)
   if (authStep === 'forgotPassword') {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
-          <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
-              <div className="text-center mb-8">
-                <div
-                  onClick={() => setAuthStep('howItWorks')}
-                  className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer"
-                >
-                  <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
-                </div>
-                <h2 className="text-2xl font-black text-gray-900 mb-2">Recuperar Contraseña</h2>
-                <p className="text-gray-600">Ingresa tu correo para recibir un enlace de recuperación.</p>
-              </div>
-
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={forgotPasswordEmail}
-                      onChange={(e) => setForgotPasswordEmail(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
-                      placeholder="tu@email.com"
-                      required
-                    />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+            <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+              <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
+                <div className="text-center mb-8">
+                  <div
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer"
+                  >
+                    <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
                   </div>
+                  <h2 className="text-2xl font-black text-gray-900 mb-2">Recuperar Contraseña</h2>
+                  <p className="text-gray-600">Ingresa tu correo para recibir un enlace de recuperación.</p>
                 </div>
 
-                {forgotPasswordMessage && (
-                  <div className={`mb-4 p-3 rounded-lg text-sm text-center font-bold ${forgotPasswordMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                    {forgotPasswordMessage.text}
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="email"
+                        value={forgotPasswordEmail}
+                        onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
+                        placeholder="tu@email.com"
+                        required
+                      />
+                    </div>
                   </div>
-                )}
 
-                <button
-                  type="submit"
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
-                >
-                  Enviar Enlace
-                </button>
-              </form>
+                  {forgotPasswordMessage && (
+                    <div className={`mb-4 p-3 rounded-lg text-sm text-center font-bold ${forgotPasswordMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      }`}>
+                      {forgotPasswordMessage.text}
+                    </div>
+                  )}
 
-              <div className="text-center mt-6">
-                <button
-                  onClick={() => setAuthStep('login')}
-                  className="text-yellow-600 hover:text-yellow-700 font-bold"
-                >
-                  Volver a Iniciar Sesión
-                </button>
+                  <button
+                    type="submit"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
+                  >
+                    Enviar Enlace
+                  </button>
+                </form>
+
+                <div className="text-center mt-6">
+                  <button
+                    onClick={() => setAuthStep('login')}
+                    className="text-yellow-600 hover:text-yellow-700 font-bold"
+                  >
+                    Volver a Iniciar Sesión
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   // Pantalla de restablecer contraseña (nueva password)
   if (authStep === 'resetPassword') {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
-          <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
-              <div className="text-center mb-8">
-                <div
-                  onClick={() => setAuthStep('howItWorks')}
-                  className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 -rotate-3 hover:rotate-0 transition-transform cursor-pointer"
-                >
-                  <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4">
+            <div className="max-w-md mx-auto pt-12 animate-in fade-in slide-in-from-top duration-700">
+              <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-yellow-400">
+                <div className="text-center mb-8">
+                  <div
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 -rotate-3 hover:rotate-0 transition-transform cursor-pointer"
+                  >
+                    <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
+                  </div>
+                  <h2 className="text-2xl font-black text-gray-900 mb-2">Nueva Contraseña</h2>
+                  <p className="text-gray-600">Ingresa tu nueva contraseña para acceder.</p>
                 </div>
-                <h2 className="text-2xl font-black text-gray-900 mb-2">Nueva Contraseña</h2>
-                <p className="text-gray-600">Ingresa tu nueva contraseña para acceder.</p>
+
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Nueva Contraseña</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
+                        placeholder="Mínimo 6 caracteres"
+                        minLength={6}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {forgotPasswordMessage && (
+                    <div className={`mb-4 p-3 rounded-lg text-sm text-center font-bold ${forgotPasswordMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      }`}>
+                      {forgotPasswordMessage.text}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
+                  >
+                    Restablecer Contraseña
+                  </button>
+                </form>
               </div>
-
-              <form onSubmit={handleResetPassword} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Nueva Contraseña</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
-                      placeholder="Mínimo 6 caracteres"
-                      minLength={6}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {forgotPasswordMessage && (
-                  <div className={`mb-4 p-3 rounded-lg text-sm text-center font-bold ${forgotPasswordMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                    {forgotPasswordMessage.text}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
-                >
-                  Restablecer Contraseña
-                </button>
-              </form>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
@@ -1245,321 +1264,327 @@ const App = () => {
   // Pantalla de Ranking
   if (showRanking && userProfile) {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <button
-                onClick={() => setShowRanking(false)}
-                className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
-              >
-                ← Volver
-              </button>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-              <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">🏆 Ranking de Voluntarios</h1>
-                <p className="text-gray-600">Top 15 voluntarios más activos</p>
-                <p className="text-sm text-purple-600 font-semibold mt-2">¡Los 3 primeros reciben premio!</p>
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
+            <div className="max-w-4xl mx-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6">
+                <button
+                  onClick={() => setShowRanking(false)}
+                  className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
+                >
+                  ← Volver
+                </button>
               </div>
 
-              {(!Array.isArray(ranking) || ranking.length === 0) ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">
-                    {Array.isArray(ranking) ? 'No hay voluntarios en el ranking todavía.' : 'Error al cargar el ranking.'}
-                  </p>
-                  <button
-                    onClick={async () => {
-                      const data = await api.getRanking();
-                      setRanking(data);
-                    }}
-                    className="mt-4 text-blue-600 font-semibold hover:underline"
-                  >
-                    Intentar recargar
-                  </button>
+              <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <div className="text-center mb-8">
+                  <h1 className="text-4xl font-bold text-gray-800 mb-2">🏆 Ranking de Voluntarios</h1>
+                  <p className="text-gray-600">Top 15 voluntarios más activos</p>
+                  <p className="text-sm text-purple-600 font-semibold mt-2">¡Los 3 primeros reciben premio!</p>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {ranking.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className={`${getTopThreeClass(entry.posicion)} rounded-xl p-5 transition-all transform hover:scale-102 ${entry.posicion <= 3 ? 'shadow-xl border-2 border-yellow-500' : 'shadow-md'
-                        }`}
+
+                {(!Array.isArray(ranking) || ranking.length === 0) ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500">
+                      {Array.isArray(ranking) ? 'No hay voluntarios en el ranking todavía.' : 'Error al cargar el ranking.'}
+                    </p>
+                    <button
+                      onClick={async () => {
+                        const data = await api.getRanking();
+                        setRanking(data);
+                      }}
+                      className="mt-4 text-blue-600 font-semibold hover:underline"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className={`${entry.posicion <= 3
-                            ? 'text-5xl font-bold'
-                            : 'text-2xl font-semibold w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-700'
-                            }`}>
-                            {getMedalEmoji(entry.posicion)}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className={`${entry.posicion <= 3 ? 'text-2xl' : 'text-xl'} font-bold ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white' : 'text-gray-800'
+                      Intentar recargar
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {ranking.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className={`${getTopThreeClass(entry.posicion)} rounded-xl p-5 transition-all transform hover:scale-102 ${entry.posicion <= 3 ? 'shadow-xl border-2 border-yellow-500' : 'shadow-md'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 flex-1">
+                            <div className={`${entry.posicion <= 3
+                              ? 'text-5xl font-bold'
+                              : 'text-2xl font-semibold w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-700'
                               }`}>
-                              {entry.nombre}
-                            </h3>
-                            <p className={`text-sm ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white/80' : 'text-gray-600'
+                              {getMedalEmoji(entry.posicion)}
+                            </div>
+                            <div className="flex-1">
+                              <h3 className={`${entry.posicion <= 3 ? 'text-2xl' : 'text-xl'} font-bold ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white' : 'text-gray-800'
+                                }`}>
+                                {entry.nombre}
+                              </h3>
+                              <p className={`text-sm ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white/80' : 'text-gray-600'
+                                }`}>
+                                {entry.localidad}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`${entry.posicion <= 3 ? 'text-4xl' : 'text-3xl'} font-bold ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white' : 'text-purple-600'
                               }`}>
-                              {entry.localidad}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className={`${entry.posicion <= 3 ? 'text-4xl' : 'text-3xl'} font-bold ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white' : 'text-purple-600'
-                            }`}>
-                            {entry.ayudas_completadas}
-                          </div>
-                          <div className={`text-xs ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white/80' : 'text-gray-500'
-                            }`}>
-                            ayudas
+                              {entry.ayudas_completadas}
+                            </div>
+                            <div className={`text-xs ${entry.posicion <= 3 && entry.posicion !== 2 ? 'text-white/80' : 'text-gray-500'
+                              }`}>
+                              ayudas
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   // Dashboard para Usuario (necesita ayuda)
   if (userProfile && userProfile.type === 'user') {
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Header con botón de logout */}
-            <div className="flex justify-between items-center mb-6 gap-4">
-              <div className="flex items-center gap-2">
-                <div
-                  onClick={() => setAuthStep('howItWorks')}
-                  className="p-1.5 bg-yellow-400 rounded-lg shadow-md rotate-3 flex-shrink-0 cursor-pointer hover:rotate-0 transition-transform"
-                >
-                  <img src={logoPuntoVuela} width="32px" alt="Punto Vuela" />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+            <div className="max-w-4xl mx-auto">
+              {/* Header con botón de logout */}
+              <div className="flex justify-between items-center mb-6 gap-4">
+                <div className="flex items-center gap-2">
+                  <div
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="p-1.5 bg-yellow-400 rounded-lg shadow-md rotate-3 flex-shrink-0 cursor-pointer hover:rotate-0 transition-transform"
+                  >
+                    <img src={logoPuntoVuela} width="32px" alt="Punto Vuela" />
+                  </div>
+                  <span className="font-black text-gray-800 text-sm md:text-base hidden sm:block">Digitales</span>
                 </div>
-                <span className="font-black text-gray-800 text-sm md:text-base hidden sm:block">Digitales</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={async () => {
-                    setShowRanking(true);
-                    const data = await api.getRanking();
-                    setRanking(data);
-                  }}
-                  className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                >
-                  🏆 Ranking
-                </button>
-                <button
-                  onClick={logout}
-                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md transform hover:scale-105"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Salir
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">Hola, {userProfile.name}</h2>
-                  <p className="text-gray-600">{userProfile.gender} • {userProfile.age} años • Usuario</p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={async () => {
+                      setShowRanking(true);
+                      const data = await api.getRanking();
+                      setRanking(data);
+                    }}
+                    className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    🏆 Ranking
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md transform hover:scale-105"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Salir
+                  </button>
                 </div>
               </div>
-            </div>
 
-            <div className="mb-6">
-              <button
-                onClick={() => setShowRequestForm(!showRequestForm)}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all shadow-md group"
-              >
-                <AlertCircle className="w-5 h-5" />
-                Solicitar Ayuda
-              </button>
-            </div>
-
-            {showRequestForm && (
-              <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 mb-8 border-t-8 border-yellow-500 transition-all animate-in zoom-in duration-300">
-                <h3 className="font-black text-gray-900 mb-6 text-2xl flex items-center gap-2">
-                  <span className="p-2 bg-yellow-400 rounded-lg shadow-sm rotate-3">
-                    <AlertCircle className="w-6 h-6 text-gray-900" />
-                  </span>
-                  Nueva Solicitud de Ayuda
-                </h3>
-
-                <div className="mb-6">
-                  <label className="block text-gray-700 font-bold mb-3 ml-1">¿En qué necesitas ayuda?</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {helpCategories.map(cat => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setRequestData({ ...requestData, category: cat.id })}
-                        className={`p-4 rounded-xl font-bold transition-all transform hover:scale-105 ${requestData.category === cat.id
-                          ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-200 ring-2 ring-yellow-400'
-                          : 'bg-gray-50 text-gray-700 border-2 border-gray-100 hover:border-yellow-200'
-                          }`}
-                      >
-                        {cat.icon} {cat.label}
-                      </button>
-                    ))}
+              <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Hola, {userProfile.name}</h2>
+                    <p className="text-gray-600">{userProfile.gender} • {userProfile.age} años • Usuario</p>
                   </div>
                 </div>
+              </div>
 
-                <div className="mb-6">
-                  <label className="block text-gray-700 font-bold mb-3 ml-1">Describe tu solicitud</label>
-                  <textarea
-                    value={requestData.description}
-                    onChange={(e) => setRequestData({ ...requestData, description: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 text-gray-800 rounded-xl border-2 border-gray-100 focus:border-yellow-500 focus:outline-none transition-all font-medium"
-                    rows={3}
-                    placeholder="Explica brevemente lo que necesitas..."
-                  />
-                </div>
-
-                <div className="mb-8">
-                  <label className="block text-gray-700 font-bold mb-3 ml-1">Ubicación</label>
-                  <div className="grid grid-cols-1 gap-2">
-                    {predefinedLocations.map(loc => (
-                      <button
-                        key={loc.id}
-                        onClick={() => setSelectedLocationId(loc.id)}
-                        className={`p-4 rounded-xl font-bold transition-all transform hover:scale-102 flex items-center gap-3 ${selectedLocationId === loc.id
-                          ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-200 ring-2 ring-yellow-400'
-                          : 'bg-gray-50 text-gray-700 border-2 border-gray-100 hover:border-yellow-200'
-                          }`}
-                      >
-                        {loc.icon} {loc.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
+              <div className="mb-6">
                 <button
-                  onClick={createHelpRequest}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-xl shadow-green-100 flex items-center justify-center gap-2"
+                  onClick={() => setShowRequestForm(!showRequestForm)}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all shadow-md group"
                 >
-                  Confirmar y Enviar Solicitud
+                  <AlertCircle className="w-5 h-5" />
+                  Solicitar Ayuda
                 </button>
               </div>
-            )}
 
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Mis Solicitudes</h3>
-              {myRequests.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No has creado ninguna solicitud aún</p>
+              {showRequestForm && (
+                <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 mb-8 border-t-8 border-yellow-500 transition-all animate-in zoom-in duration-300">
+                  <h3 className="font-black text-gray-900 mb-6 text-2xl flex items-center gap-2">
+                    <span className="p-2 bg-yellow-400 rounded-lg shadow-sm rotate-3">
+                      <AlertCircle className="w-6 h-6 text-gray-900" />
+                    </span>
+                    Nueva Solicitud de Ayuda
+                  </h3>
+
+                  <div className="mb-6">
+                    <label className="block text-gray-700 font-bold mb-3 ml-1">¿En qué necesitas ayuda?</label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {helpCategories.map(cat => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setRequestData({ ...requestData, category: cat.id })}
+                          className={`p-4 rounded-xl font-bold transition-all transform hover:scale-105 ${requestData.category === cat.id
+                            ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-200 ring-2 ring-yellow-400'
+                            : 'bg-gray-50 text-gray-700 border-2 border-gray-100 hover:border-yellow-200'
+                            }`}
+                        >
+                          {cat.icon} {cat.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="block text-gray-700 font-bold mb-3 ml-1">Describe tu solicitud</label>
+                    <textarea
+                      value={requestData.description}
+                      onChange={(e) => setRequestData({ ...requestData, description: e.target.value })}
+                      className="w-full px-4 py-3 bg-gray-50 text-gray-800 rounded-xl border-2 border-gray-100 focus:border-yellow-500 focus:outline-none transition-all font-medium"
+                      rows={3}
+                      placeholder="Explica brevemente lo que necesitas..."
+                    />
+                  </div>
+
+                  <div className="mb-8">
+                    <label className="block text-gray-700 font-bold mb-3 ml-1">Ubicación</label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {predefinedLocations.map(loc => (
+                        <button
+                          key={loc.id}
+                          onClick={() => setSelectedLocationId(loc.id)}
+                          className={`p-4 rounded-xl font-bold transition-all transform hover:scale-102 flex items-center gap-3 ${selectedLocationId === loc.id
+                            ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-200 ring-2 ring-yellow-400'
+                            : 'bg-gray-50 text-gray-700 border-2 border-gray-100 hover:border-yellow-200'
+                            }`}
+                        >
+                          {loc.icon} {loc.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={createHelpRequest}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-xl shadow-green-100 flex items-center justify-center gap-2"
+                  >
+                    Confirmar y Enviar Solicitud
+                  </button>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {myRequests.map(req => (
-                    <div key={req.id} className="bg-white border-2 border-gray-100 rounded-[2rem] p-6 shadow-md hover:border-yellow-200 transition-all group relative">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-600 text-white">
-                              {getCategoryLabel(req.category)}
-                            </span>
-                            {req.status === 'pending' && <CountdownTimer timestamp={req.createdAt} />}
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${req.status === 'pending' ? 'bg-yellow-600 text-white' :
-                              req.status === 'accepted' ? 'bg-green-600 text-white' :
-                                req.status === 'expired' ? 'bg-red-600 text-white' :
-                                  'bg-gray-600 text-white'
-                              }`}>
-                              {req.status === 'pending' ? 'Pendiente' : req.status === 'accepted' ? 'Aceptada' : req.status === 'expired' ? 'Expirada' : 'Completada'}
-                            </span>
-                          </div>
-                          <p className="text-gray-800 font-medium mb-3">{req.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-400 font-medium">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" /> {req.timestamp}
-                            </span>
-                            {req.location && (
-                              <span className="font-medium">{req.location.name}</span>
-                            )}
-                          </div>
-                          {(req.volunteer || req.status === 'expired') && (
-                            <div className="mt-4 flex flex-col gap-3">
-                              <span className={`text-sm font-bold ${req.status === 'expired' ? 'text-red-500' : 'text-green-600'}`}>
-                                {req.status === 'expired' ? '⚠️ Nadie acudió a tiempo' : `✓ Voluntario: ${req.volunteer}`}
+              )}
+
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Mis Solicitudes</h3>
+                {myRequests.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No has creado ninguna solicitud aún</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {myRequests.map(req => (
+                      <div key={req.id} className="bg-white border-2 border-gray-100 rounded-[2rem] p-6 shadow-md hover:border-yellow-200 transition-all group relative">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-600 text-white">
+                                {getCategoryLabel(req.category)}
                               </span>
-                              <button
-                                onClick={() => openChat(req.id)}
-                                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
-                              >
-                                💬 Abrir Chat
-                              </button>
-                              {req.status === 'expired' && (
+                              {req.status === 'pending' && <CountdownTimer timestamp={req.createdAt} />}
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${req.status === 'pending' ? 'bg-yellow-600 text-white' :
+                                req.status === 'accepted' ? 'bg-green-600 text-white' :
+                                  req.status === 'expired' ? 'bg-red-600 text-white' :
+                                    'bg-gray-600 text-white'
+                                }`}>
+                                {req.status === 'pending' ? 'Pendiente' : req.status === 'accepted' ? 'Aceptada' : req.status === 'expired' ? 'Expirada' : 'Completada'}
+                              </span>
+                            </div>
+                            <p className="text-gray-800 font-medium mb-3">{req.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-gray-400 font-medium">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" /> {req.timestamp}
+                              </span>
+                              {req.location && (
+                                <span className="font-medium">{req.location.name}</span>
+                              )}
+                            </div>
+                            {(req.volunteer || req.status === 'expired') && (
+                              <div className="mt-4 flex flex-col gap-3">
+                                <span className={`text-sm font-bold ${req.status === 'expired' ? 'text-red-500' : 'text-green-600'}`}>
+                                  {req.status === 'expired' ? '⚠️ Nadie acudió a tiempo' : `✓ Voluntario: ${req.volunteer}`}
+                                </span>
+                                <button
+                                  onClick={() => openChat(req.id)}
+                                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                                >
+                                  💬 Abrir Chat
+                                </button>
+                                {req.status === 'expired' && (
+                                  <button
+                                    onClick={() => deleteHelpRequest(req.id)}
+                                    className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                                    title="Eliminar solicitud"
+                                  >
+                                    <span className="text-lg leading-none">🗑️</span>
+                                    Eliminar solicitud
+                                  </button>
+                                )}
+                                {req.status === 'accepted' && !req.confirmacion_solicitante && (
+                                  <button
+                                    onClick={() => confirmArrival(req.id)}
+                                    className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                                  >
+                                    ✅ ¡Han llegado para ayudarme!
+                                  </button>
+                                )}
+                                {req.status === 'accepted' && req.confirmacion_solicitante && (
+                                  <p className="text-xs text-center text-green-600 font-bold bg-green-50 py-2 rounded-lg border border-green-100 italic">
+                                    ¡Ya has confirmado! Esperando confirmación final del voluntario...
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                            {req.status === 'pending' && (
+                              <div className="mt-4">
                                 <button
                                   onClick={() => deleteHelpRequest(req.id)}
-                                  className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                                  className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2"
                                   title="Eliminar solicitud"
                                 >
                                   <span className="text-lg leading-none">🗑️</span>
                                   Eliminar solicitud
                                 </button>
-                              )}
-                              {req.status === 'accepted' && !req.confirmacion_solicitante && (
-                                <button
-                                  onClick={() => confirmArrival(req.id)}
-                                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
-                                >
-                                  ✅ ¡Han llegado para ayudarme!
-                                </button>
-                              )}
-                              {req.status === 'accepted' && req.confirmacion_solicitante && (
-                                <p className="text-xs text-center text-green-600 font-bold bg-green-50 py-2 rounded-lg border border-green-100 italic">
-                                  ¡Ya has confirmado! Esperando confirmación final del voluntario...
-                                </p>
-                              )}
-                            </div>
-                          )}
-                          {req.status === 'pending' && (
-                            <div className="mt-4">
-                              <button
-                                onClick={() => deleteHelpRequest(req.id)}
-                                className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2"
-                                title="Eliminar solicitud"
-                              >
-                                <span className="text-lg leading-none">🗑️</span>
-                                Eliminar solicitud
-                              </button>
-                            </div>
-                          )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+            <ChatWindow
+              showChat={showChat}
+              activeChatId={activeChatId}
+              userProfile={userProfile}
+              helpRequests={helpRequests}
+              chatMessages={chatMessages}
+              setChatMessages={setChatMessages}
+              setShowChat={setShowChat}
+              setActiveChatId={setActiveChatId}
+              handleSendMessage={handleSendMessage}
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              isSendingMessage={isSendingMessage}
+            />
           </div>
-          <ChatWindow
-            showChat={showChat}
-            activeChatId={activeChatId}
-            userProfile={userProfile}
-            helpRequests={helpRequests}
-            chatMessages={chatMessages}
-            setChatMessages={setChatMessages}
-            setShowChat={setShowChat}
-            setActiveChatId={setActiveChatId}
-            handleSendMessage={handleSendMessage}
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            isSendingMessage={isSendingMessage}
-          />
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
@@ -1569,209 +1594,212 @@ const App = () => {
     const hasActiveHelp = myHelps.filter(h => h.status === 'accepted').length > 0;
 
     return (
-      <>
-        <CustomModal />
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Header con logout */}
-            <div className="flex justify-between items-center mb-6 gap-4">
-              <div className="flex items-center gap-2">
-                <div
-                  onClick={() => setAuthStep('howItWorks')}
-                  className="p-1.5 bg-yellow-400 rounded-lg shadow-md -rotate-3 flex-shrink-0 cursor-pointer hover:rotate-0 transition-transform"
-                >
-                  <img src={logoPuntoVuela} width="32px" alt="Punto Vuela" />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4">
+            <div className="max-w-4xl mx-auto">
+              {/* Header con logout */}
+              <div className="flex justify-between items-center mb-6 gap-4">
+                <div className="flex items-center gap-2">
+                  <div
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="p-1.5 bg-yellow-400 rounded-lg shadow-md -rotate-3 flex-shrink-0 cursor-pointer hover:rotate-0 transition-transform"
+                  >
+                    <img src={logoPuntoVuela} width="32px" alt="Punto Vuela" />
+                  </div>
+                  <span className="font-black text-gray-800 text-sm md:text-base hidden sm:block">Digitales</span>
                 </div>
-                <span className="font-black text-gray-800 text-sm md:text-base hidden sm:block">Digitales</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={async () => {
-                    setShowRanking(true);
-                    const data = await api.getRanking();
-                    setRanking(data);
-                  }}
-                  className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                >
-                  🏆 Ranking
-                </button>
-                <button
-                  onClick={logout}
-                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md transform hover:scale-105"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Salir
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">Hola, {userProfile.name}</h2>
-                  <p className="text-gray-600">{userProfile.gender} • {userProfile.age} años • Voluntario</p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={async () => {
+                      setShowRanking(true);
+                      const data = await api.getRanking();
+                      setRanking(data);
+                    }}
+                    className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    🏆 Ranking
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-md transform hover:scale-105"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Salir
+                  </button>
                 </div>
               </div>
-            </div>
 
-            {hasActiveHelp && (
-              <div className="bg-yellow-100 border-2 border-yellow-500 rounded-lg p-4 mb-6">
-                <p className="text-yellow-800 font-semibold">
-                  ⚠️ Ya tienes una ayuda activa. Complétala antes de aceptar otra solicitud.
-                </p>
-              </div>
-            )}
-
-            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border-4 border-yellow-500">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Solicitudes de Ayuda Activas</h3>
-              {pendingRequests.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No hay solicitudes de ayuda en este momento</p>
+              <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Hola, {userProfile.name}</h2>
+                    <p className="text-gray-600">{userProfile.gender} • {userProfile.age} años • Voluntario</p>
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {pendingRequests.map(req => (
-                    <div key={req.id} className="border-2 border-gray-300 rounded-lg p-4 transition-all hover:border-yellow-500">
-                      <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
-                        <div className="flex-1 w-full">
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-black">
-                              {getCategoryLabel(req.category)}
-                            </span>
-                            <span className="text-sm text-gray-600">
-                              {req.userGender}, {req.userAge} años
-                            </span>
-                            <CountdownTimer timestamp={req.createdAt} />
-                          </div>
-                          <p className="text-gray-700 mb-2">{req.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" /> {req.timestamp}
-                            </span>
-                            {req.location && (
-                              <span className="flex items-center gap-1">
-                                🏢 <span className="font-medium">{req.location.name}</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => acceptHelp(req.id)}
-                          disabled={hasActiveHelp}
-                          className={`w-full md:w-auto md:ml-4 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all ${hasActiveHelp
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-yellow-500 hover:bg-yellow-600 text-black transform hover:scale-105'
-                            }`}
-                        >
-                          Voy en Camino
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+              </div>
+
+              {hasActiveHelp && (
+                <div className="bg-yellow-100 border-2 border-yellow-500 rounded-lg p-4 mb-6">
+                  <p className="text-yellow-800 font-semibold">
+                    ⚠️ Ya tienes una ayuda activa. Complétala antes de aceptar otra solicitud.
+                  </p>
                 </div>
               )}
-            </div>
 
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Mis Ayudas</h3>
-              {myHelps.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Heart className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No has aceptado ninguna ayuda aún</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {myHelps.map(help => (
-                    <div key={help.id} className="border-2 border-green-500 rounded-lg p-4">
-                      <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
-                        <div className="flex-1 w-full">
-                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-600 text-white">
-                              {getCategoryLabel(help.category)}
-                            </span>
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${help.status === 'accepted' ? 'bg-yellow-600 text-white' : 'bg-gray-600 text-white'
-                              }`}>
-                              {help.status === 'accepted' ? 'En Progreso' : 'Completada'}
-                            </span>
-                          </div>
-                          <p className="text-gray-700 mb-2">{help.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>Usuario: {help.userName}</span>
-                            {help.location && (
-                              <span className="flex items-center gap-1">
-                                🏢 <span className="font-medium">{help.location.name}</span>
+              <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border-4 border-yellow-500">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Solicitudes de Ayuda Activas</h3>
+                {pendingRequests.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No hay solicitudes de ayuda en este momento</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {pendingRequests.map(req => (
+                      <div key={req.id} className="border-2 border-gray-300 rounded-lg p-4 transition-all hover:border-yellow-500">
+                        <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
+                          <div className="flex-1 w-full">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-black">
+                                {getCategoryLabel(req.category)}
                               </span>
-                            )}
+                              <span className="text-sm text-gray-600">
+                                {req.userGender}, {req.userAge} años
+                              </span>
+                              <CountdownTimer timestamp={req.createdAt} />
+                            </div>
+                            <p className="text-gray-700 mb-2">{req.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" /> {req.timestamp}
+                              </span>
+                              {req.location && (
+                                <span className="flex items-center gap-1">
+                                  🏢 <span className="font-medium">{req.location.name}</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
+                          <button
+                            onClick={() => acceptHelp(req.id)}
+                            disabled={hasActiveHelp}
+                            className={`w-full md:w-auto md:ml-4 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all ${hasActiveHelp
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              : 'bg-yellow-500 hover:bg-yellow-600 text-black transform hover:scale-105'
+                              }`}
+                          >
+                            Voy en Camino
+                          </button>
                         </div>
-                        <div className="flex flex-col gap-2 w-full md:w-auto md:ml-4">
-                          <div className="flex flex-row md:flex-col gap-2">
-                            <button
-                              onClick={() => openChat(help.id)}
-                              className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
-                            >
-                              💬 Chat
-                            </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Mis Ayudas</h3>
+                {myHelps.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Heart className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No has aceptado ninguna ayuda aún</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {myHelps.map(help => (
+                      <div key={help.id} className="border-2 border-green-500 rounded-lg p-4">
+                        <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
+                          <div className="flex-1 w-full">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-600 text-white">
+                                {getCategoryLabel(help.category)}
+                              </span>
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${help.status === 'accepted' ? 'bg-yellow-600 text-white' : 'bg-gray-600 text-white'
+                                }`}>
+                                {help.status === 'accepted' ? 'En Progreso' : 'Completada'}
+                              </span>
+                            </div>
+                            <p className="text-gray-700 mb-2">{help.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <span>Usuario: {help.userName}</span>
+                              {help.location && (
+                                <span className="flex items-center gap-1">
+                                  🏢 <span className="font-medium">{help.location.name}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2 w-full md:w-auto md:ml-4">
+                            <div className="flex flex-row md:flex-col gap-2">
+                              <button
+                                onClick={() => openChat(help.id)}
+                                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                              >
+                                💬 Chat
+                              </button>
+                              {help.status === 'accepted' && (
+                                <button
+                                  onClick={() => completeHelp(help.id)}
+                                  disabled={help.confirmacion_voluntario}
+                                  className={`flex-1 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2 ${help.confirmacion_voluntario
+                                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                                    : 'bg-green-600 hover:bg-green-700 text-white'
+                                    }`}
+                                >
+                                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                                  <span className="whitespace-nowrap">
+                                    {help.confirmacion_voluntario ? 'Esperando al otro...' : 'Completar'}
+                                  </span>
+                                </button>
+                              )}
+                            </div>
+                            {help.status === 'accepted' && help.confirmacion_voluntario && !help.confirmacion_solicitante && (
+                              <p className="text-[10px] md:text-xs text-center text-yellow-700 font-bold bg-yellow-50 py-2 px-1 rounded-lg border border-yellow-200 animate-pulse">
+                                ⏳ Tú ya has confirmado. ¡Falta que el solicitante pulse en "Han llegado"!
+                              </p>
+                            )}
+                            {help.status === 'accepted' && help.confirmacion_solicitante && !help.confirmacion_voluntario && (
+                              <p className="text-[10px] md:text-xs text-center text-green-700 font-bold bg-green-50 py-2 px-1 rounded-lg border border-green-200">
+                                📢 ¡El solicitante dice que ya has llegado! Pulsa el botón verde para completar.
+                              </p>
+                            )}
                             {help.status === 'accepted' && (
                               <button
-                                onClick={() => completeHelp(help.id)}
-                                disabled={help.confirmacion_voluntario}
-                                className={`flex-1 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2 ${help.confirmacion_voluntario
-                                  ? 'bg-gray-400 cursor-not-allowed text-white'
-                                  : 'bg-green-600 hover:bg-green-700 text-white'
-                                  }`}
+                                onClick={() => cancelHelp(help.id)}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 text-sm rounded-lg font-semibold transition-all shadow-md flex items-center justify-center gap-2"
                               >
-                                <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                                <span className="whitespace-nowrap">
-                                  {help.confirmacion_voluntario ? 'Esperando al otro...' : 'Completar'}
-                                </span>
+                                <AlertCircle className="w-4 h-4" />
+                                Cancelar Ayuda
                               </button>
                             )}
                           </div>
-                          {help.status === 'accepted' && help.confirmacion_voluntario && !help.confirmacion_solicitante && (
-                            <p className="text-[10px] md:text-xs text-center text-yellow-700 font-bold bg-yellow-50 py-2 px-1 rounded-lg border border-yellow-200 animate-pulse">
-                              ⏳ Tú ya has confirmado. ¡Falta que el solicitante pulse en "Han llegado"!
-                            </p>
-                          )}
-                          {help.status === 'accepted' && help.confirmacion_solicitante && !help.confirmacion_voluntario && (
-                            <p className="text-[10px] md:text-xs text-center text-green-700 font-bold bg-green-50 py-2 px-1 rounded-lg border border-green-200">
-                              📢 ¡El solicitante dice que ya has llegado! Pulsa el botón verde para completar.
-                            </p>
-                          )}
-                          {help.status === 'accepted' && (
-                            <button
-                              onClick={() => cancelHelp(help.id)}
-                              className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 text-sm rounded-lg font-semibold transition-all shadow-md flex items-center justify-center gap-2"
-                            >
-                              <AlertCircle className="w-4 h-4" />
-                              Cancelar Ayuda
-                            </button>
-                          )}
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+            <ChatWindow
+              showChat={showChat}
+              activeChatId={activeChatId}
+              userProfile={userProfile}
+              helpRequests={helpRequests}
+              chatMessages={chatMessages}
+              setChatMessages={setChatMessages}
+              setShowChat={setShowChat}
+              setActiveChatId={setActiveChatId}
+              handleSendMessage={handleSendMessage}
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              isSendingMessage={isSendingMessage}
+            />
           </div>
-          <ChatWindow
-            showChat={showChat}
-            activeChatId={activeChatId}
-            userProfile={userProfile}
-            helpRequests={helpRequests}
-            chatMessages={chatMessages}
-            setChatMessages={setChatMessages}
-            setShowChat={setShowChat}
-            setActiveChatId={setActiveChatId}
-            handleSendMessage={handleSendMessage}
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            isSendingMessage={isSendingMessage}
-          />
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
