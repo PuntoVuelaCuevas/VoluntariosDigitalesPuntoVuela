@@ -761,7 +761,7 @@ const App = () => {
                   Voluntarios Digitales
                 </h1>
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                  Uniendo generaciones a través de la tecnología. Conectamos a personas mayores que necesitan ayuda digital con jóvenes dispuestos a enseñar.
+                  Uniendo generaciones a través de la tecnología. Conectamos a personas que necesitan ayuda digital con jóvenes dispuestos a enseñar.
                 </p>
               </div>
 
