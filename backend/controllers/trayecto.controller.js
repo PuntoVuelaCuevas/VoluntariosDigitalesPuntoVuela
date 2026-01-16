@@ -110,29 +110,53 @@ exports.findOneTrayecto = async (req, res) => {
 
 exports.updateTrayecto = async (req, res) => {
     try {
+        const trayecto = await Trayecto.findByPk(req.params.id);
+        
+        if (!trayecto) {
+            return res.status(404).json({ message: 'Journey not found' });
+        }
+
+        // Si alguien intenta aceptar una solicitud que ya está aceptada
+        if (req.body.estado === 'ACEPTADO' && trayecto.estado === 'ACEPTADO') {
+            return res.status(409).json({ 
+                message: 'Esta solicitud ya ha sido aceptada por otro voluntario',
+                conflictError: true,
+                alreadyAcceptedBy: trayecto.voluntario_id
+            });
+        }
+
+        // Si alguien intenta aceptar una solicitud que ya está pendiente y asigna voluntario_id
+        if (req.body.voluntario_id && trayecto.voluntario_id && trayecto.voluntario_id !== req.body.voluntario_id) {
+            return res.status(409).json({ 
+                message: 'Esta solicitud ya ha sido aceptada por otro voluntario',
+                conflictError: true,
+                alreadyAcceptedBy: trayecto.voluntario_id
+            });
+        }
+
         await Trayecto.update(req.body, {
             where: { id: req.params.id }
         });
 
         // Verificar si ambas partes han confirmado para completar el trayecto
-        const trayecto = await Trayecto.findByPk(req.params.id);
-        if (trayecto &&
-            trayecto.confirmacion_solicitante &&
-            trayecto.confirmacion_voluntario &&
-            trayecto.estado !== 'COMPLETADO') {
+        const updatedTrayecto = await Trayecto.findByPk(req.params.id);
+        if (updatedTrayecto &&
+            updatedTrayecto.confirmacion_solicitante &&
+            updatedTrayecto.confirmacion_voluntario &&
+            updatedTrayecto.estado !== 'COMPLETADO') {
 
-            await trayecto.update({ estado: 'COMPLETADO' });
+            await updatedTrayecto.update({ estado: 'COMPLETADO' });
         }
 
-        const updatedTrayecto = await Trayecto.findByPk(req.params.id, {
+        const finalTrayecto = await Trayecto.findByPk(req.params.id, {
             include: [
                 { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo'] },
                 { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
             ]
         });
 
-        if (updatedTrayecto) {
-            res.status(200).json(updatedTrayecto);
+        if (finalTrayecto) {
+            res.status(200).json(finalTrayecto);
         } else {
             res.status(404).json({ message: 'Journey not found' });
         }

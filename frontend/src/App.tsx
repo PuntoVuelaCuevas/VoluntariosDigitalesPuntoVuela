@@ -382,6 +382,18 @@ const App = () => {
     }
   }, [userProfile]);
 
+  // Polling automático para voluntarios (actualizar solicitudes cada 2 segundos)
+  useEffect(() => {
+    if (userProfile?.type !== 'volunteer' || !userProfile?.id) return;
+
+    // Hacer polling inmediatamente y luego cada 2 segundos
+    const interval = setInterval(() => {
+      loadTrayectos();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [userProfile?.type, userProfile?.id]);
+
   const loadTrayectos = async () => {
     try {
       const trayectos = await api.obtenerTrayectos();
@@ -564,9 +576,21 @@ const App = () => {
 
       await loadTrayectos();
       showAlert('¡Ayuda Aceptada!', 'Has aceptado la solicitud. ¡Gracias por tu valiosa ayuda!', 'success');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error accepting help:', error);
-      showAlert('Error', 'No se pudo aceptar la ayuda. Por favor, inténtalo de nuevo.', 'error');
+      
+      // Verificar si el error es por conflicto (otro voluntario ya la aceptó)
+      if (error.status === 409 && error.message && error.message.includes('ya ha sido aceptada')) {
+        // Recargar solicitudes para reflejar el cambio
+        await loadTrayectos();
+        showAlert(
+          'Solicitud No Disponible',
+          'Lo sentimos, otro voluntario ya ha aceptado esta solicitud mientras intentabas aceptarla. ¡Intenta con otra!',
+          'alert'
+        );
+      } else {
+        showAlert('Error', 'No se pudo aceptar la ayuda. Por favor, inténtalo de nuevo.', 'error');
+      }
     }
   };
 

@@ -79,6 +79,16 @@ export const actualizarTrayecto = async (id: number, datos: Partial<Trayecto>) =
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(datos)
     });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error al actualizar',
+            status: response.status,
+            conflictError: errorData.conflictError
+        };
+    }
+
     return response.json();
 };
 
