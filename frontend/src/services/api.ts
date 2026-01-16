@@ -109,8 +109,39 @@ export const crearMensaje = async (mensaje: Mensaje) => {
     return response.json();
 };
 
-export const obtenerMensajesPorTrayecto = async (trayectoId: number) => {
-    const response = await fetch(`${API_BASE_URL}/mensajes/trayecto/${trayectoId}`);
+export const obtenerMensajesPorTrayecto = async (trayectoId: number, userId?: number) => {
+    const url = new URL(`${API_BASE_URL}/mensajes/trayecto/${trayectoId}`);
+    if (userId) {
+        url.searchParams.append('userId', userId.toString());
+    }
+    const response = await fetch(url.toString());
+    
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error al obtener mensajes',
+            status: response.status,
+            error: errorData.error
+        };
+    }
+    
+    return response.json();
+};
+
+export const eliminarMensajesPorTrayecto = async (trayectoId: number) => {
+    const response = await fetch(`${API_BASE_URL}/mensajes/trayecto/${trayectoId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error al eliminar mensajes',
+            status: response.status
+        };
+    }
+
     return response.json();
 };
 

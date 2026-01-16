@@ -101,8 +101,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
     const fetchMsgs = async () => {
       try {
-        if (!activeChatId) return;
-        const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
+        if (!activeChatId || !userProfile?.id) return;
+        const msgs = await api.obtenerMensajesPorTrayecto(activeChatId, userProfile.id);
         setChatMessages((prev) => {
           if (!Array.isArray(prev) || prev.length !== msgs.length) {
             return msgs;
@@ -123,7 +123,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       const interval = setInterval(fetchMsgs, 4000);
       return () => clearInterval(interval);
     }
-  }, [showChat, activeChatId, helpRequests, setChatMessages]);
+  }, [showChat, activeChatId, helpRequests, setChatMessages, userProfile?.id]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -628,16 +628,25 @@ const App = () => {
   const cancelHelp = async (requestId: number) => {
     showConfirm(
       '¿Cancelar esta ayuda?',
-      'Si cancelas, la solicitud volverá a estar pendiente para que otros voluntarios puedan aceptarla.',
+      'Si cancelas, la solicitud volverá a estar pendiente para que otros voluntarios puedan aceptarla. Los mensajes del chat serán eliminados.',
       async () => {
         try {
+          // Eliminar mensajes del chat
+          try {
+            await api.eliminarMensajesPorTrayecto(requestId);
+          } catch (msgError) {
+            console.warn('Warning: Could not delete messages:', msgError);
+            // Continuar aunque falle la eliminación de mensajes
+          }
+
+          // Cancelar la solicitud
           await api.actualizarTrayecto(requestId, {
             estado: 'PENDIENTE',
             voluntario_id: null,
             fecha_creacion: new Date().toISOString() // Reiniciar el temporizador de 30 mins
           } as any);
           await loadTrayectos();
-          showAlert('Ayuda Cancelada', 'La solicitud ha vuelto al estado pendiente.', 'success');
+          showAlert('Ayuda Cancelada', 'La solicitud ha vuelto al estado pendiente y los mensajes han sido eliminados.', 'success');
         } catch (error) {
           console.error('Error canceling help:', error);
           showAlert('Error', 'No se pudo cancelar la ayuda. Inténtalo de nuevo.', 'error');
@@ -725,10 +734,15 @@ const App = () => {
     // Limpiar mensajes anteriores mientras carga
     setChatMessages([]);
     try {
-      const msgs = await api.obtenerMensajesPorTrayecto(trayectoId);
+      if (!userProfile?.id) return;
+      const msgs = await api.obtenerMensajesPorTrayecto(trayectoId, userProfile.id);
       setChatMessages(msgs);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading messages:', error);
+      // Mostrar alerta si hay problema de permiso
+      if (error.status === 403) {
+        showAlert('Acceso Denegado', 'No tienes permiso para ver estos mensajes.', 'error');
+      }
     }
   };
 
@@ -746,10 +760,16 @@ const App = () => {
       await api.crearMensaje(msgData);
       setNewMessage('');
       // Recargar mensajes
-      const msgs = await api.obtenerMensajesPorTrayecto(activeChatId);
+      const msgs = await api.obtenerMensajesPorTrayecto(activeChatId, userProfile.id);
       setChatMessages(msgs);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
+      // Mostrar alerta si hay error
+      if (error.status === 403) {
+        showAlert('No permitido', 'No puedes enviar mensajes en este chat.', 'error');
+      } else if (error.status === 400) {
+        showAlert('Chat cerrado', 'No puedes enviar mensajes porque esta solicitud ya no está activa.', 'alert');
+      }
     } finally {
       setIsSendingMessage(false);
     }
