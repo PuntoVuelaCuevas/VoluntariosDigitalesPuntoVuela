@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { AlertCircle, Users, User, Heart, Clock, CheckCircle, Mail, Lock, LogOut, MessageSquare, Send } from 'lucide-react';
+import { AlertCircle, Users, User, Heart, Clock, CheckCircle, Mail, Lock, LogOut, MessageSquare, Send, Eye, EyeOff } from 'lucide-react';
 import './index.css';
 import * as api from './services/api';
 import logoPuntoVuela from './assets/Logo Punto Vuela.jpg';
@@ -251,6 +251,7 @@ const App = () => {
     email: '',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   // Estados para recuperación de contraseña
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
@@ -783,6 +784,7 @@ const App = () => {
                 </div>
               </div>
 
+              {!userProfile && (
               <div className="bg-yellow-400 rounded-[3rem] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
                 <div className="relative z-10">
@@ -795,6 +797,7 @@ const App = () => {
                   </button>
                 </div>
               </div>
+              )}
             </div>
           </div>
         </main>
@@ -823,13 +826,7 @@ const App = () => {
                     Voluntarios Digitales
                   </h1>
                   <p className="text-gray-600">Crea tu cuenta para comenzar</p>
-                  <button
-                    onClick={() => setAuthStep('howItWorks')}
-                    className="mt-3 text-yellow-600 font-bold hover:text-yellow-700 transition-all flex items-center gap-1 mx-auto group"
-                  >
-                    ¿Cómo funciona?
-                    <Heart className="w-4 h-4 group-hover:scale-125 transition-transform text-yellow-500 fill-yellow-500" />
-                  </button>
+
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-4">
@@ -865,14 +862,21 @@ const App = () => {
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={registerForm.password}
                         onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
+                        className="w-full pl-11 pr-12 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all"
                         placeholder="Mínimo 6 caracteres"
                         minLength={6}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
                     </div>
                   </div>
 
@@ -996,7 +1000,7 @@ const App = () => {
                 <div className="text-center mb-8">
                   <div
                     onClick={() => setAuthStep('howItWorks')}
-                    className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 -rotate-3 hover:rotate-0 transition-transform cursor-pointer"
+                    className="inline-block p-3 bg-yellow-400 rounded-2xl shadow-lg mb-6 rotate-3 hover:rotate-0 transition-transform cursor-pointer"
                   >
                     <img src={logoPuntoVuela} width="80px" alt="Punto Vuela" />
                   </div>
@@ -1027,13 +1031,20 @@ const App = () => {
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={loginForm.password}
                         onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                        className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
+                        className="w-full pl-11 pr-12 py-3 border-2 border-gray-100 rounded-xl focus:border-yellow-500 focus:outline-none bg-gray-50 transition-all font-medium"
                         placeholder="Tu contraseña"
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
                     </div>
                   </div>
 
