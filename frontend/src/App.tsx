@@ -394,6 +394,18 @@ const App = () => {
     return () => clearInterval(interval);
   }, [userProfile?.type, userProfile?.id]);
 
+  // Polling automático para solicitantes (actualizar sus solicitudes cada 4 segundos)
+  // Esto permite detectar cuando un voluntario acepta la solicitud sin refrescar
+  useEffect(() => {
+    if (userProfile?.type !== 'user' || !userProfile?.id) return;
+
+    const interval = setInterval(() => {
+      loadTrayectos();
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [userProfile?.type, userProfile?.id]);
+
   const loadTrayectos = async () => {
     try {
       const trayectos = await api.obtenerTrayectos();
