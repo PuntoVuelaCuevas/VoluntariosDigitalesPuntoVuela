@@ -317,8 +317,6 @@ const App = () => {
         r.status === 'accepted'
       );
 
-      console.log('Checking notifications for requests:', requestsToCheck.map(r => r.id));
-
       for (const req of requestsToCheck) {
         // Si tengo el chat abierto, no necesito notificar (o limpiaremos al abrir)
         if (req.id === activeChatId && showChat) continue;
@@ -328,16 +326,12 @@ const App = () => {
           if (msgs.length > 0) {
             const lastMsg = msgs[msgs.length - 1];
 
-            console.log(`Req ${req.id}: Last msg emisor: ${lastMsg.emisor_id} (Me: ${userProfile.id})`);
-
             // Si el último mensaje no es mío
             // Forzamos comparación laxa o conversión para asegurar
             if (Number(lastMsg.emisor_id) !== Number(userProfile.id)) {
               const lastReadId = lastReadMessageMap[req.id] || 0;
-              console.log(`Req ${req.id}: MsgID: ${lastMsg.id} vs LastRead: ${lastReadId}`);
 
               if (lastMsg.id > lastReadId) {
-                console.log(`Req ${req.id}: NEW NOTIFICATION!`);
                 setUnreadNotifications(prev => {
                   const newSet = new Set(prev);
                   newSet.add(req.id);
@@ -352,9 +346,10 @@ const App = () => {
       }
     };
 
-    const interval = setInterval(checkNotifications, 10000); // Check cada 10s
+    const interval = setInterval(checkNotifications, 3000); // Check cada 3s (casi instantáneo)
     return () => clearInterval(interval);
   }, [userProfile, helpRequests, activeChatId, showChat, lastReadMessageMap]);
+
 
   // Estado para el modal personalizado
   const [modal, setModal] = useState<ModalState>({
