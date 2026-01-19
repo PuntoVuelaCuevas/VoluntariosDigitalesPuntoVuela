@@ -313,7 +313,12 @@ const App = () => {
 
   // Polling para notificaciones
   useEffect(() => {
-    if (!userProfile?.id) return;
+    console.log('DEBUG: Notification Effect TRACE. Profile:', userProfile ? userProfile.id : 'null', 'Chats:', helpRequests.length);
+
+    if (!userProfile?.id) {
+      console.log('DEBUG: Early return due to missing profile');
+      return;
+    }
 
     const checkNotifications = async () => {
       // Filtrar chats relevantes (donde participo y están aceptados)
@@ -359,6 +364,7 @@ const App = () => {
       }
     };
 
+    checkNotifications();
 
     const interval = setInterval(checkNotifications, 3000); // Check cada 3s (casi instantáneo)
     return () => clearInterval(interval);
