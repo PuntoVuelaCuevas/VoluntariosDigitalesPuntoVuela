@@ -277,6 +277,7 @@ const App = () => {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [isCreatingRequest, setIsCreatingRequest] = useState(false);
 
   // Estado para el modal personalizado
   const [modal, setModal] = useState<ModalState>({
@@ -547,6 +548,7 @@ const App = () => {
 
   // Crear solicitud
   const createHelpRequest = async () => {
+    if (isCreatingRequest) return;
     if (!userProfile?.id || !selectedLocationId || !requestData.category || !requestData.description) {
       showAlert('Datos incompletos', 'Por favor completa todos los campos para que los voluntarios puedan ayudarte mejor.', 'alert');
       return;
@@ -555,6 +557,7 @@ const App = () => {
     const selectedLoc = predefinedLocations.find(loc => loc.id === selectedLocationId);
     if (!selectedLoc) return;
 
+    setIsCreatingRequest(true);
     try {
       await api.crearTrayecto({
         solicitante_id: userProfile.id,
@@ -574,6 +577,8 @@ const App = () => {
     } catch (error) {
       console.error('Error creating request:', error);
       showAlert('Error', 'No se pudo crear la solicitud. Por favor, inténtalo de nuevo.', 'error');
+    } finally {
+      setIsCreatingRequest(false);
     }
   };
 
@@ -1543,9 +1548,11 @@ const App = () => {
 
                   <button
                     onClick={createHelpRequest}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-xl shadow-green-100 flex items-center justify-center gap-2"
+                    disabled={isCreatingRequest}
+                    className={`w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-xl shadow-green-100 flex items-center justify-center gap-2 ${isCreatingRequest ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                   >
-                    Confirmar y Enviar Solicitud
+                    {isCreatingRequest ? 'Enviando...' : 'Confirmar y Enviar Solicitud'}
                   </button>
                 </div>
               )}
