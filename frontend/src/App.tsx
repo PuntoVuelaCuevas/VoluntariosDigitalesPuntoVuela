@@ -305,26 +305,31 @@ const App = () => {
     const checkNotifications = async () => {
       // Filtrar chats relevantes (donde participo y están aceptados)
       const requestsToCheck = helpRequests.filter(r =>
-        (r.solicitante_id === userProfile.id || r.voluntario_id === userProfile.id) &&
+        (Number(r.solicitante_id) === Number(userProfile.id) || Number(r.voluntario_id) === Number(userProfile.id)) &&
         r.status === 'accepted'
       );
 
+      console.log('Checking notifications for requests:', requestsToCheck.map(r => r.id));
+
       for (const req of requestsToCheck) {
         // Si tengo el chat abierto, no necesito notificar (o limpiaremos al abrir)
-        // Pero seguimos chequeando para actualizar el mapa si es necesario, 
-        // aunque idealmente openChat se encarga.
-
         if (req.id === activeChatId && showChat) continue;
 
         try {
-          // Usamos _t para cache busting light, pero interval más largo
           const msgs = await api.obtenerMensajesPorTrayecto(req.id, userProfile.id);
           if (msgs.length > 0) {
             const lastMsg = msgs[msgs.length - 1];
+
+            console.log(`Req ${req.id}: Last msg emisor: ${lastMsg.emisor_id} (Me: ${userProfile.id})`);
+
             // Si el último mensaje no es mío
-            if (lastMsg.emisor_id !== userProfile.id) {
+            // Forzamos comparación laxa o conversión para asegurar
+            if (Number(lastMsg.emisor_id) !== Number(userProfile.id)) {
               const lastReadId = lastReadMessageMap[req.id] || 0;
+              console.log(`Req ${req.id}: MsgID: ${lastMsg.id} vs LastRead: ${lastReadId}`);
+
               if (lastMsg.id > lastReadId) {
+                console.log(`Req ${req.id}: NEW NOTIFICATION!`);
                 setUnreadNotifications(prev => {
                   const newSet = new Set(prev);
                   newSet.add(req.id);
@@ -334,7 +339,7 @@ const App = () => {
             }
           }
         } catch (e) {
-          // Silenciar errores de polling background
+          console.error('Error checking notifications:', e);
         }
       }
     };
