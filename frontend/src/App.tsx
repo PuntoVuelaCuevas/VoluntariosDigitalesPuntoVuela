@@ -322,6 +322,9 @@ const App = () => {
         r.status === 'accepted'
       );
 
+      // DEBUG: Ver qué requests está revisando
+      console.log(`DEBUG: User ${userProfile.id} checking ${requestsToCheck.length} accepted chats.`);
+
       for (const req of requestsToCheck) {
         if (req.id === activeChatId && showChat) continue;
 
@@ -330,11 +333,17 @@ const App = () => {
           if (msgs.length > 0) {
             const lastMsg = msgs[msgs.length - 1];
 
-            // Si el último mensaje no es mío
-            if (Number(lastMsg.emisor_id) !== Number(userProfile.id)) {
-              const lastReadId = lastReadMessageMap[req.id] || 0;
+            // Debug de lógica de notificación
+            const isMine = Number(lastMsg.emisor_id) === Number(userProfile.id);
+            const lastReadId = lastReadMessageMap[req.id] || 0;
+            const isNew = lastMsg.id > lastReadId;
 
-              if (lastMsg.id > lastReadId) {
+            console.log(`DEBUG Chat ${req.id}: LastMsgID=${lastMsg.id} (Sender=${lastMsg.emisor_id}) vs Me=${userProfile.id}. isMine=${isMine}, LastRead=${lastReadId}, isNew=${isNew}`);
+
+            // Si el último mensaje no es mío
+            if (!isMine) {
+              if (isNew) {
+                console.log(`DEBUG: *** NOTIFICACION ACTIVADA para Chat ${req.id} ***`);
                 setUnreadNotifications(prev => {
                   if (prev.has(req.id)) return prev;
                   const newSet = new Set(prev);
