@@ -282,21 +282,29 @@ const App = () => {
   const [lastReadMessageMap, setLastReadMessageMap] = useState<Record<number, number>>({});
 
   // Cargar estado de leídos al inicio
+  // Cargar estado de leídos al inicio (depende del usuario)
   useEffect(() => {
-    const saved = localStorage.getItem('lastReadMessageMap');
+    if (!userProfile?.id) return;
+    const key = `lastReadMessageMap_${userProfile.id}`;
+    const saved = localStorage.getItem(key);
     if (saved) {
       try {
         setLastReadMessageMap(JSON.parse(saved));
       } catch (e) {
         console.error('Error parsing stored read state', e);
       }
+    } else {
+      setLastReadMessageMap({});
     }
-  }, []);
+  }, [userProfile?.id]);
 
   // Guardar estado de leídos
+  // Guardar estado de leídos
   useEffect(() => {
-    localStorage.setItem('lastReadMessageMap', JSON.stringify(lastReadMessageMap));
-  }, [lastReadMessageMap]);
+    if (!userProfile?.id) return;
+    const key = `lastReadMessageMap_${userProfile.id}`;
+    localStorage.setItem(key, JSON.stringify(lastReadMessageMap));
+  }, [lastReadMessageMap, userProfile?.id]);
 
   // Polling para notificaciones
   useEffect(() => {
