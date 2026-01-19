@@ -317,8 +317,14 @@ const App = () => {
         r.status === 'accepted'
       );
 
+      console.log('DEBUG: Checking reqs', requestsToCheck.map(r => ({
+        id: r.id,
+        solicitante: r.solicitante_id,
+        voluntario: r.voluntario_id,
+        myId: userProfile.id
+      })));
+
       for (const req of requestsToCheck) {
-        // Si tengo el chat abierto, no necesito notificar (o limpiaremos al abrir)
         if (req.id === activeChatId && showChat) continue;
 
         try {
@@ -326,12 +332,14 @@ const App = () => {
           if (msgs.length > 0) {
             const lastMsg = msgs[msgs.length - 1];
 
-            // Si el último mensaje no es mío
-            // Forzamos comparación laxa o conversión para asegurar
+            console.log(`DEBUG Req ${req.id}: LastMsg sender ${lastMsg.emisor_id} vs Me ${userProfile.id}`);
+
             if (Number(lastMsg.emisor_id) !== Number(userProfile.id)) {
               const lastReadId = lastReadMessageMap[req.id] || 0;
+              console.log(`DEBUG Req ${req.id}: MsgID ${lastMsg.id} > ReadID ${lastReadId}? ${lastMsg.id > lastReadId}`);
 
               if (lastMsg.id > lastReadId) {
+                console.log('DEBUG: MARKING UNREAD!');
                 setUnreadNotifications(prev => {
                   const newSet = new Set(prev);
                   newSet.add(req.id);
