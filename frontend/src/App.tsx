@@ -120,7 +120,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     };
 
     if (!isReadonly) {
-      const interval = setInterval(fetchMsgs, 4000);
+      const interval = setInterval(fetchMsgs, 2000);
       return () => clearInterval(interval);
     }
   }, [showChat, activeChatId, helpRequests, setChatMessages, userProfile?.id]);

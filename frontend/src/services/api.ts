@@ -114,8 +114,11 @@ export const obtenerMensajesPorTrayecto = async (trayectoId: number, userId?: nu
     if (userId) {
         url.searchParams.append('userId', userId.toString());
     }
+    // Cache busting
+    url.searchParams.append('_t', Date.now().toString());
+
     const response = await fetch(url.toString());
-    
+
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw {
@@ -124,7 +127,7 @@ export const obtenerMensajesPorTrayecto = async (trayectoId: number, userId?: nu
             error: errorData.error
         };
     }
-    
+
     return response.json();
 };
 
