@@ -452,6 +452,7 @@ const App = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const verified = urlParams.get('verified');
+    const view = urlParams.get('view');
 
     if (token) {
       setResetToken(token);
@@ -471,6 +472,10 @@ const App = () => {
         const profile = JSON.parse(saved);
         setUserProfile(profile);
         setAuthStep('dashboard');
+      } else if (view === 'login') {
+        setAuthStep('login');
+        // Limpiar URL
+        window.history.replaceState({}, '', window.location.pathname);
       }
     }
   }, []);

@@ -80,7 +80,7 @@ const sendNewRequestNotification = async (trayecto, recipients) => {
 
                 <p>Entra en la aplicación para ver más detalles y aceptar la ayuda si estás disponible.</p>
                 
-                <a href="https://voluntariosdigitalespuntovuela-pearl.vercel.app/" style="background-color: #eab308; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Ir a la App</a>
+                <a href="https://voluntariosdigitalespuntovuela-pearl.vercel.app/?view=login" style="background-color: #eab308; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Ir a la App</a>
             </div>
         `;
 
