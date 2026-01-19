@@ -278,6 +278,70 @@ const App = () => {
   const [newMessage, setNewMessage] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [isCreatingRequest, setIsCreatingRequest] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState<Set<number>>(new Set());
+  const [lastReadMessageMap, setLastReadMessageMap] = useState<Record<number, number>>({});
+
+  // Cargar estado de leídos al inicio
+  useEffect(() => {
+    const saved = localStorage.getItem('lastReadMessageMap');
+    if (saved) {
+      try {
+        setLastReadMessageMap(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error parsing stored read state', e);
+      }
+    }
+  }, []);
+
+  // Guardar estado de leídos
+  useEffect(() => {
+    localStorage.setItem('lastReadMessageMap', JSON.stringify(lastReadMessageMap));
+  }, [lastReadMessageMap]);
+
+  // Polling para notificaciones
+  useEffect(() => {
+    if (!userProfile?.id) return;
+
+    const checkNotifications = async () => {
+      // Filtrar chats relevantes (donde participo y están aceptados)
+      const requestsToCheck = helpRequests.filter(r =>
+        (r.solicitante_id === userProfile.id || r.voluntario_id === userProfile.id) &&
+        r.status === 'accepted'
+      );
+
+      for (const req of requestsToCheck) {
+        // Si tengo el chat abierto, no necesito notificar (o limpiaremos al abrir)
+        // Pero seguimos chequeando para actualizar el mapa si es necesario, 
+        // aunque idealmente openChat se encarga.
+
+        if (req.id === activeChatId && showChat) continue;
+
+        try {
+          // Usamos _t para cache busting light, pero interval más largo
+          const msgs = await api.obtenerMensajesPorTrayecto(req.id, userProfile.id);
+          if (msgs.length > 0) {
+            const lastMsg = msgs[msgs.length - 1];
+            // Si el último mensaje no es mío
+            if (lastMsg.emisor_id !== userProfile.id) {
+              const lastReadId = lastReadMessageMap[req.id] || 0;
+              if (lastMsg.id > lastReadId) {
+                setUnreadNotifications(prev => {
+                  const newSet = new Set(prev);
+                  newSet.add(req.id);
+                  return newSet;
+                });
+              }
+            }
+          }
+        } catch (e) {
+          // Silenciar errores de polling background
+        }
+      }
+    };
+
+    const interval = setInterval(checkNotifications, 10000); // Check cada 10s
+    return () => clearInterval(interval);
+  }, [userProfile, helpRequests, activeChatId, showChat, lastReadMessageMap]);
 
   // Estado para el modal personalizado
   const [modal, setModal] = useState<ModalState>({
@@ -755,12 +819,28 @@ const App = () => {
   const openChat = async (trayectoId: number) => {
     setActiveChatId(trayectoId);
     setShowChat(true);
+    // Limpiar notificación visual
+    setUnreadNotifications(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(trayectoId);
+      return newSet;
+    });
+
     // Limpiar mensajes anteriores mientras carga
     setChatMessages([]);
     try {
       if (!userProfile?.id) return;
       const msgs = await api.obtenerMensajesPorTrayecto(trayectoId, userProfile.id);
       setChatMessages(msgs);
+
+      // Actualizar último leído
+      if (msgs.length > 0) {
+        const lastMsg = msgs[msgs.length - 1];
+        setLastReadMessageMap(prev => ({
+          ...prev,
+          [trayectoId]: lastMsg.id
+        }));
+      }
     } catch (error: any) {
       console.error('Error loading messages:', error);
       // Mostrar alerta si hay problema de permiso
@@ -786,6 +866,16 @@ const App = () => {
       // Recargar mensajes
       const msgs = await api.obtenerMensajesPorTrayecto(activeChatId, userProfile.id);
       setChatMessages(msgs);
+
+      // Actualizar mi lectura
+      if (msgs.length > 0) {
+        const lastMsg = msgs[msgs.length - 1];
+        setLastReadMessageMap(prev => ({
+          ...prev,
+          [activeChatId]: lastMsg.id
+        }));
+      }
+
     } catch (error: any) {
       console.error('Error sending message:', error);
       // Mostrar alerta si hay error
@@ -1599,9 +1689,14 @@ const App = () => {
                                 </span>
                                 <button
                                   onClick={() => openChat(req.id)}
-                                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2 relative"
                                 >
                                   💬 Abrir Chat
+                                  {unreadNotifications.has(req.id) && (
+                                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full animate-bounce flex items-center justify-center border-2 border-white shadow-sm">
+                                      <span className="w-2 h-2 bg-white rounded-full"></span>
+                                    </span>
+                                  )}
                                 </button>
                                 {req.status === 'expired' && (
                                   <button
@@ -1816,9 +1911,12 @@ const App = () => {
                             <div className="flex flex-row md:flex-col gap-2">
                               <button
                                 onClick={() => openChat(help.id)}
-                                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2"
+                                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base rounded-lg font-semibold transition-all shadow-md transform hover:scale-105 flex items-center justify-center gap-2 relative"
                               >
                                 💬 Chat
+                                {unreadNotifications.has(help.id) && (
+                                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-bounce border-2 border-white shadow-sm"></span>
+                                )}
                               </button>
                               {help.status === 'accepted' && (
                                 <button
