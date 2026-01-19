@@ -358,11 +358,18 @@ const App = () => {
     // 1. Check URL for reset token
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
+    const verified = urlParams.get('verified');
 
     if (token) {
       setResetToken(token);
       setAuthStep('resetPassword');
       // Limpiar URL para que no se vea feo
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (verified === 'true') {
+      setAuthStep('login');
+      setLoginError(null); // Limpiar errores
+      showAlert('¡Cuenta Verificada!', 'Tu correo ha sido verificado correctamente. Ya puedes iniciar sesión.', 'success');
+      // Limpiar URL
       window.history.replaceState({}, '', window.location.pathname);
     } else {
       // 2. Check localStorage if no token
@@ -590,7 +597,7 @@ const App = () => {
       showAlert('¡Ayuda Aceptada!', 'Has aceptado la solicitud. ¡Gracias por tu valiosa ayuda!', 'success');
     } catch (error: any) {
       console.error('Error accepting help:', error);
-      
+
       // Verificar si el error es por conflicto (otro voluntario ya la aceptó)
       if (error.status === 409 && error.message && error.message.includes('ya ha sido aceptada')) {
         // Recargar solicitudes para reflejar el cambio
@@ -841,18 +848,18 @@ const App = () => {
               </div>
 
               {!userProfile && (
-              <div className="bg-yellow-400 rounded-[3rem] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
-                <div className="relative z-10">
-                  <h2 className="text-3xl font-black text-white mb-6">¿Preparado para marcar la diferencia?</h2>
-                  <button
-                    onClick={() => setAuthStep('register')}
-                    className="bg-white text-yellow-600 px-8 py-4 rounded-2xl font-black text-lg shadow-xl hover:shadow-2xl hover:bg-yellow-50 transition-all transform hover:scale-105 active:scale-95"
-                  >
-                    ¡Comenzar ahora!
-                  </button>
+                <div className="bg-yellow-400 rounded-[3rem] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden group">
+                  <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                  <div className="relative z-10">
+                    <h2 className="text-3xl font-black text-white mb-6">¿Preparado para marcar la diferencia?</h2>
+                    <button
+                      onClick={() => setAuthStep('register')}
+                      className="bg-white text-yellow-600 px-8 py-4 rounded-2xl font-black text-lg shadow-xl hover:shadow-2xl hover:bg-yellow-50 transition-all transform hover:scale-105 active:scale-95"
+                    >
+                      ¡Comenzar ahora!
+                    </button>
+                  </div>
                 </div>
-              </div>
               )}
             </div>
           </div>

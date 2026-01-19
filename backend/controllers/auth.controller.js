@@ -105,12 +105,12 @@ exports.verifyEmail = async (req, res) => {
         usuario.verification_token = null; // Invalidar token
         await usuario.save();
 
-        // Redirigir al frontend (login)
-        res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/');
+        // Redirigir al frontend (login) con parametro de verificado
+        res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/?verified=true');
     } catch (error) {
         console.error('Error verifying email:', error);
         // En caso de error grave, también redirigimos o mostramos algo más amable
-        res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/');
+        res.redirect('https://voluntariosdigitalespuntovuela-pearl.vercel.app/?error=verification_failed');
     }
 };
 
