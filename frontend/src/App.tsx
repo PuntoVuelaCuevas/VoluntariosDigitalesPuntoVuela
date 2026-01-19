@@ -306,6 +306,11 @@ const App = () => {
     localStorage.setItem(key, JSON.stringify(lastReadMessageMap));
   }, [lastReadMessageMap, userProfile?.id]);
 
+  // DEBUG: Monitor notifications
+  useEffect(() => {
+    console.log('DEBUG: unreadNotifications changed:', Array.from(unreadNotifications));
+  }, [unreadNotifications]);
+
   // Polling para notificaciones
   useEffect(() => {
     if (!userProfile?.id) return;
@@ -317,13 +322,6 @@ const App = () => {
         r.status === 'accepted'
       );
 
-      console.log('DEBUG: Checking reqs', requestsToCheck.map(r => ({
-        id: r.id,
-        solicitante: r.solicitante_id,
-        voluntario: r.voluntario_id,
-        myId: userProfile.id
-      })));
-
       for (const req of requestsToCheck) {
         if (req.id === activeChatId && showChat) continue;
 
@@ -332,15 +330,13 @@ const App = () => {
           if (msgs.length > 0) {
             const lastMsg = msgs[msgs.length - 1];
 
-            console.log(`DEBUG Req ${req.id}: LastMsg sender ${lastMsg.emisor_id} vs Me ${userProfile.id}`);
-
+            // Si el último mensaje no es mío
             if (Number(lastMsg.emisor_id) !== Number(userProfile.id)) {
               const lastReadId = lastReadMessageMap[req.id] || 0;
-              console.log(`DEBUG Req ${req.id}: MsgID ${lastMsg.id} > ReadID ${lastReadId}? ${lastMsg.id > lastReadId}`);
 
               if (lastMsg.id > lastReadId) {
-                console.log('DEBUG: MARKING UNREAD!');
                 setUnreadNotifications(prev => {
+                  if (prev.has(req.id)) return prev;
                   const newSet = new Set(prev);
                   newSet.add(req.id);
                   return newSet;
@@ -353,6 +349,7 @@ const App = () => {
         }
       }
     };
+
 
     const interval = setInterval(checkNotifications, 3000); // Check cada 3s (casi instantáneo)
     return () => clearInterval(interval);
@@ -1709,7 +1706,7 @@ const App = () => {
                                 >
                                   💬 Abrir Chat
                                   {unreadNotifications.has(req.id) && (
-                                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full animate-bounce flex items-center justify-center border-2 border-white shadow-sm">
+                                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full animate-bounce flex items-center justify-center border-2 border-white shadow-sm z-50">
                                       <span className="w-2 h-2 bg-white rounded-full"></span>
                                     </span>
                                   )}
@@ -1931,7 +1928,7 @@ const App = () => {
                               >
                                 💬 Chat
                                 {unreadNotifications.has(help.id) && (
-                                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full animate-bounce flex items-center justify-center border-2 border-white shadow-sm">
+                                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full animate-bounce flex items-center justify-center border-2 border-white shadow-sm z-50">
                                     <span className="w-2 h-2 bg-white rounded-full"></span>
                                   </span>
                                 )}
