@@ -1923,7 +1923,9 @@ const App = () => {
                               >
                                 💬 Chat
                                 {unreadNotifications.has(help.id) && (
-                                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-bounce border-2 border-white shadow-sm"></span>
+                                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full animate-bounce flex items-center justify-center border-2 border-white shadow-sm">
+                                    <span className="w-2 h-2 bg-white rounded-full"></span>
+                                  </span>
                                 )}
                               </button>
                               {help.status === 'accepted' && (
