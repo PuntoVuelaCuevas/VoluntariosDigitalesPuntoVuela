@@ -1016,7 +1016,12 @@ const App = () => {
                   <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
                     Voluntarios Digitales
                   </h1>
-                  <p className="text-gray-600">Crea tu cuenta para comenzar</p>
+                  <button
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold mt-2 group"
+                  >
+                    ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
+                  </button>
 
                 </div>
 
@@ -1199,6 +1204,12 @@ const App = () => {
                     Bienvenido de nuevo
                   </h1>
                   <p className="text-gray-600">Inicia sesión para continuar</p>
+                  <button
+                    onClick={() => setAuthStep('howItWorks')}
+                    className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold mt-2 group"
+                  >
+                    ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
+                  </button>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
