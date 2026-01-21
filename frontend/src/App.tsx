@@ -955,6 +955,20 @@ const App = () => {
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                   Uniendo generaciones a través de la tecnología. Conectamos a personas que necesitan ayuda digital con jóvenes dispuestos a enseñar.
                 </p>
+
+                <div className="mt-8 flex justify-center">
+                  <div className="w-full max-w-2xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-yellow-400">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src="https://www.youtube.com/embed/oY11f7Slee4"
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-3 gap-8 mb-16">
