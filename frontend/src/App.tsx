@@ -1030,12 +1030,6 @@ const App = () => {
                   <h1 className="text-3xl font-black text-gray-900 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-500 pb-2">
                     Voluntarios Digitales
                   </h1>
-                  <button
-                    onClick={() => setAuthStep('howItWorks')}
-                    className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold mt-2 group"
-                  >
-                    ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
-                  </button>
 
                 </div>
 
@@ -1187,6 +1181,13 @@ const App = () => {
                         Inicia Sesión
                       </button>
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => setAuthStep('howItWorks')}
+                      className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold mt-4 group"
+                    >
+                      ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
+                    </button>
                   </div>
                 </form>
               </div>
@@ -1218,12 +1219,6 @@ const App = () => {
                     Bienvenido de nuevo
                   </h1>
                   <p className="text-gray-600">Inicia sesión para continuar</p>
-                  <button
-                    onClick={() => setAuthStep('howItWorks')}
-                    className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold mt-2 group"
-                  >
-                    ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
-                  </button>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
@@ -1299,6 +1294,13 @@ const App = () => {
                         Recuperar contraseña
                       </button>
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => setAuthStep('howItWorks')}
+                      className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold mt-4 group"
+                    >
+                      ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
+                    </button>
                   </div>
                 </form>
               </div>
@@ -1619,6 +1621,15 @@ const App = () => {
                 </div>
               </div>
 
+              <div className="mb-6 text-center">
+                <button
+                  onClick={() => setAuthStep('howItWorks')}
+                  className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold group"
+                >
+                  ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
+                </button>
+              </div>
+
               <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -1863,6 +1874,15 @@ const App = () => {
                     Salir
                   </button>
                 </div>
+              </div>
+
+              <div className="mb-6 text-center">
+                <button
+                  onClick={() => setAuthStep('howItWorks')}
+                  className="text-base text-yellow-500 hover:text-yellow-600 transition-all font-semibold group"
+                >
+                  ¿Cómo funciona? <span className="text-yellow-400 group-hover:text-yellow-500 transition-all">♥️</span>
+                </button>
               </div>
 
               <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
