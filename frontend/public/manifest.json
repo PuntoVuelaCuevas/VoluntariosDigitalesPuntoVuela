@@ -1,6 +1,6 @@
 {
-  "name": "Mi Proyecto",
-  "short_name": "MiApp",
+  "name": "Voluntarios Digitales Punto Vuela",
+  "short_name": "VoluntariosDigitales",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
