@@ -481,7 +481,7 @@ const App = () => {
     }
   }, []);
 
-  // Cargar solicitudes cuando hay usuario
+  // Cargar solicitudes cuando hay usuario.
   useEffect(() => {
     if (userProfile) {
       loadTrayectos();
