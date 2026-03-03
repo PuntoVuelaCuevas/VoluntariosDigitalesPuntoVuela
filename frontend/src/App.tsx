@@ -434,7 +434,8 @@ const App = () => {
   const predefinedLocations: Location[] = [
     { id: 'loc1', name: 'Punto Vuela', lat: 37.2965, lng: -1.8687, icon: '💻', color: 'blue' },
     { id: 'loc2', name: 'Puerta Colegio', lat: 37.2970, lng: -1.8690, icon: '🏫', color: 'purple' },
-    { id: 'loc3', name: 'El Nacimiento', lat: 37.2980, lng: -1.8680, icon: '🏞️', color: 'green' }
+    { id: 'loc3', name: 'El Nacimiento', lat: 37.2980, lng: -1.8680, icon: '🏞️', color: 'green' },
+    { id: 'loc4', name: 'Rafael Alberti', lat: 37.2990, lng: -1.8675, icon: '📚', color: 'red' }
   ];
 
   const helpCategories = [
