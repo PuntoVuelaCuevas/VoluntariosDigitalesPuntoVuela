@@ -15,6 +15,13 @@ exports.register = async (req, res) => {
             });
         }
 
+        // Validar edad >= 18
+        if (edad && parseInt(edad) < 18) {
+            return res.status(400).json({
+                message: 'Debes tener al menos 18 años para registrarte'
+            });
+        }
+
         // Verificar si el email ya existe
         let usuario = await Usuario.findOne({ where: { email } });
 

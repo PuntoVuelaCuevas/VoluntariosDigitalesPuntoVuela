@@ -618,6 +618,13 @@ const App = () => {
       return;
     }
 
+    // Validar edad >= 18
+    const edadInt = parseInt(edad);
+    if (edadInt < 18) {
+      setRegisterError('Debes tener al menos 18 años para registrarte');
+      return;
+    }
+
     try {
       await api.register({
         nombre_completo,
