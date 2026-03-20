@@ -261,6 +261,7 @@ const App = () => {
   // Estados para errores en línea (feedback inmediato)
   const [loginError, setLoginError] = useState<string | null>(null);
   const [registerError, setRegisterError] = useState<string | null>(null);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [forgotPasswordMessage, setForgotPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
 
@@ -602,6 +603,10 @@ const App = () => {
   // Manejar registro
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Evitar clics múltiples
+    if (isRegistering) return;
+    
     const { nombre_completo, email, password, edad, genero, localidad } = registerForm;
 
     setRegisterError(null); // Limpiar errores previos
@@ -625,6 +630,7 @@ const App = () => {
       return;
     }
 
+    setIsRegistering(true);
     try {
       await api.register({
         nombre_completo,
@@ -646,6 +652,8 @@ const App = () => {
       } else {
         setRegisterError(error.message || 'Error al registrar usuario');
       }
+    } finally {
+      setIsRegistering(false);
     }
   };
 
@@ -1139,6 +1147,11 @@ const App = () => {
                     >
                       <option value="">Seleccionar</option>
                       <option value="Cuevas del Becerro">Cuevas del Becerro</option>
+                      <option value="Serrato">Serrato</option>
+                      <option value="Cañete la Real">Cañete la Real</option>
+                      <option value="La Atalaya">La Atalaya</option>
+                      <option value="Arriate">Arriate</option>
+                      <option value="Los Prados">Los Prados</option>
                     </select>
                   </div>
 
@@ -1179,9 +1192,26 @@ const App = () => {
 
                   <button
                     type="submit"
-                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg shadow-yellow-200"
+                    disabled={isRegistering}
+                    className={`w-full py-4 rounded-xl font-bold transition-all transform shadow-lg ${
+                      isRegistering
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : 'bg-yellow-500 hover:bg-yellow-600 text-white hover:scale-105 shadow-yellow-200'
+                    }`}
                   >
-                    Crear Cuenta
+                    {isRegistering ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                        <span>Creando cuenta...</span>
+                      </div>
+                    ) : (
+                      'Crear Cuenta'
+                    )}
                   </button>
 
                   <div className="text-center mt-4">

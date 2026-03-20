@@ -7,21 +7,34 @@ exports.createTrayecto = async (req, res) => {
         const trayecto = await Trayecto.create(req.body);
         console.log('Trayecto created successfully:', trayecto.id);
 
-        // Enviar notificación por correo solo a voluntarios verificados
+        // Enviar notificación por correo solo a voluntarios verificados de la misma localidad
         try {
-            const users = await Usuario.findAll({
-                where: {
-                    rol_activo: 'voluntario',
-                    email_verified: true
-                },
-                attributes: ['email']
+            // Obtener la localidad del solicitante
+            const solicitante = await Usuario.findByPk(trayecto.solicitante_id, {
+                attributes: ['localidad']
             });
-            const recipients = users.map(u => u.email).filter(email => email); // Array de emails
 
-            if (recipients.length > 0) {
-                console.log(`Sending notification to ${recipients.length} users`);
-                // Enviamos sin await para no bloquear la respuesta HTTP
-                sendNewRequestNotification(trayecto, recipients);
+            if (!solicitante || !solicitante.localidad) {
+                console.warn('Solicitante o localidad no encontrados');
+            } else {
+                // Buscar voluntarios de la MISMA localidad
+                const users = await Usuario.findAll({
+                    where: {
+                        rol_activo: 'voluntario',
+                        email_verified: true,
+                        localidad: solicitante.localidad
+                    },
+                    attributes: ['email']
+                });
+                const recipients = users.map(u => u.email).filter(email => email); // Array de emails
+
+                if (recipients.length > 0) {
+                    console.log(`Sending notification to ${recipients.length} users from ${solicitante.localidad}`);
+                    // Enviamos sin await para no bloquear la respuesta HTTP
+                    sendNewRequestNotification(trayecto, recipients);
+                } else {
+                    console.log(`No volunteers found in ${solicitante.localidad}`);
+                }
             }
         } catch (emailError) {
             console.error('Error fetching users for notification:', emailError);
