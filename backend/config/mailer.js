@@ -126,13 +126,31 @@ const sendVerificationEmail = async (user, token) => {
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #2563eb;">¡Bienvenido/a, ${user.nombre_completo}!</h2>
-                <p>Gracias por registrarte. Para comenzar a usar tu cuenta, por favor verifica tu correo electrónico.</p>
+                <p>Gracias por registrarte en <strong>Voluntarios Digitales Punto Vuela</strong>. Para comenzar a usar tu cuenta, por favor verifica tu correo electrónico.</p>
                 
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="${verificationLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Verificar mi Correo</a>
                 </div>
 
+                <div style="background-color: #fef3c7; padding: 20px; border-left: 4px solid #f59e0b; margin: 30px 0; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #d97706;">⚠️ Paso Importante: Verificación de Edad</h3>
+                    <p>Hemos recibido tu solicitud de registro. Después de verificar tu correo, podrás acceder a las funciones básicas de la plataforma. Sin embargo, para utilizar todas las características de la app, <strong>necesitamos verificar que tienes más de 18 años</strong>.</p>
+                    
+                    <p><strong>¿Cómo verificar tu edad?</strong></p>
+                    <ul style="margin: 15px 0;">
+                        <li><strong>Opción 1:</strong> Ve presencialmente a <strong>Punto Vuela</strong> con tu DNI o documento de identidad</li>
+                        <li><strong>Opción 2:</strong> Envía una foto clara de tu DNI a <strong style="color: #d97706;">puntovuelacuevas@gmail.com</strong> indicando que quieres verificar tu edad</li>
+                    </ul>
+                    
+                    <p style="margin-bottom: 0; font-size: 14px; color: #92400e;">Una vez que nuestro equipo verifique tu edad, tendrás acceso completo a la plataforma.</p>
+                </div>
+
                 <p style="font-size: 12px; color: #666;">Si no has creado esta cuenta, puedes ignorar este correo.</p>
+                
+                <p style="font-size: 12px; color: #999; border-top: 1px solid #ddd; padding-top: 15px;">
+                    Voluntarios Digitales Punto Vuela<br>
+                    Email: puntovuelacuevas@gmail.com
+                </p>
             </div>
         `;
 

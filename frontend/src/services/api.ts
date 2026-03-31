@@ -193,7 +193,8 @@ export const login = async (data: LoginData) => {
         const errorData = await response.json().catch(() => ({}));
         throw {
             message: errorData.message || 'Error en el login',
-            status: response.status
+            status: response.status,
+            awaiting_approval: errorData.awaiting_approval || false
         };
     }
 

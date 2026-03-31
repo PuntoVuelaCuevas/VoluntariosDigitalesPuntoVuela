@@ -1,7 +1,35 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { Usuario } = require('../models');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../config/mailer');
+
+// Ruta al archivo de usuarios aprobados
+const APPROVED_USERS_FILE = path.join(__dirname, '../config/approved-users.json');
+
+// Función auxiliar para leer usuarios aprobados
+const getApprovedUsers = () => {
+    try {
+        if (!fs.existsSync(APPROVED_USERS_FILE)) {
+            fs.writeFileSync(APPROVED_USERS_FILE, JSON.stringify({ approvedUserIds: [], pendingUsers: [] }, null, 2));
+        }
+        const data = fs.readFileSync(APPROVED_USERS_FILE, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading approved users file:', error);
+        return { approvedUserIds: [], pendingUsers: [] };
+    }
+};
+
+// Función auxiliar para guardar usuarios aprobados
+const saveApprovedUsers = (data) => {
+    try {
+        fs.writeFileSync(APPROVED_USERS_FILE, JSON.stringify(data, null, 2));
+    } catch (error) {
+        console.error('Error saving approved users file:', error);
+    }
+};
 
 // Registrar nuevo usuario
 exports.register = async (req, res) => {
@@ -156,6 +184,17 @@ exports.login = async (req, res) => {
             });
         }
 
+        // Verificar si el usuario ha sido aprobado (leer del archivo JSON)
+        const approvedData = getApprovedUsers();
+        const isApproved = approvedData.approvedUserIds.includes(usuario.id);
+
+        if (!isApproved) {
+            return res.status(403).json({
+                message: 'Tu cuenta está pendiente de aprobación por parte de nuestro equipo. Por favor verifica tu edad en Punto Vuela con tu DNI o envía un correo a puntovuelacuevas@gmail.com con una foto de tu DNI.',
+                awaiting_approval: true
+            });
+        }
+
         // Responder con datos del usuario (sin password_hash)
         res.json({
             id: usuario.id,
@@ -276,6 +315,90 @@ exports.testEmail = async (req, res) => {
                 timestamp: new Date().toISOString(),
                 hint: "Si sigue saliendo timeout en puerto 465, Railway bloquea SMTP."
             }
+        });
+    }
+};
+
+// Aprobar usuario (Admin)
+exports.approveUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Verificar que el usuario existe en BD
+        const usuario = await Usuario.findByPk(userId);
+        if (!usuario) {
+            return res.status(404).json({
+                message: 'Usuario no encontrado'
+            });
+        }
+
+        // Agregar a usuarios aprobados en el archivo
+        const approvedData = getApprovedUsers();
+        
+        if (!approvedData.approvedUserIds.includes(usuario.id)) {
+            approvedData.approvedUserIds.push(usuario.id);
+        }
+
+        // Remover de pendientes si estaba
+        approvedData.pendingUsers = approvedData.pendingUsers.filter(id => id !== usuario.id);
+        
+        saveApprovedUsers(approvedData);
+
+        res.json({
+            message: 'Usuario aprobado correctamente',
+            usuario: {
+                id: usuario.id,
+                email: usuario.email,
+                nombre_completo: usuario.nombre_completo,
+                approved: true
+            }
+        });
+    } catch (error) {
+        console.error('Error in approveUser:', error);
+        res.status(500).json({
+            message: 'Error al aprobar usuario',
+            error: error.message
+        });
+    }
+};
+
+// Obtener usuarios pendientes de aprobación (Admin)
+exports.getPendingUsers = async (req, res) => {
+    try {
+        // Obtener todos los usuarios verificados que no estén aprobados
+        const usuariosVerificados = await Usuario.findAll({
+            where: {
+                email_verified: true
+            },
+            attributes: [
+                'id',
+                'nombre_completo',
+                'email',
+                'edad',
+                'genero',
+                'localidad',
+                'rol_activo',
+                'fecha_registro'
+            ],
+            order: [['fecha_registro', 'DESC']]
+        });
+
+        // Filtrar solo los que NO están aprobados
+        const approvedData = getApprovedUsers();
+        const usuariosPendientes = usuariosVerificados.filter(
+            u => !approvedData.approvedUserIds.includes(u.id)
+        );
+
+        res.json({
+            count: usuariosPendientes.length,
+            usuarios: usuariosPendientes,
+            approved: approvedData.approvedUserIds.length
+        });
+    } catch (error) {
+        console.error('Error in getPendingUsers:', error);
+        res.status(500).json({
+            message: 'Error al obtener usuarios pendientes',
+            error: error.message
         });
     }
 };

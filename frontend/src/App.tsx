@@ -237,7 +237,7 @@ const App = () => {
   // Estados
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [authStep, setAuthStep] = useState<'register' | 'login' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword' | 'howItWorks'>('register');
+  const [authStep, setAuthStep] = useState<'register' | 'login' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword' | 'howItWorks' | 'awaitingAdminApproval'>('register');
   const [registerForm, setRegisterForm] = useState({
     nombre_completo: '',
     email: '',
@@ -591,7 +591,11 @@ const App = () => {
 
     } catch (error: any) {
       console.error('Error login:', error);
-      if (error.status === 401 || error.status === 404) {
+      if (error.status === 403 && error.awaiting_approval) {
+        // Usuario existe pero está esperando aprobación de admin
+        setAuthStep('awaitingAdminApproval');
+        setLoginForm({ email: loginForm.email, password: '' }); // Limpiar contraseña
+      } else if (error.status === 401 || error.status === 404) {
         setLoginError('Contraseña o correo incorrectos');
       } else {
         setLoginError(error.message || 'Error al iniciar sesión');
@@ -1458,6 +1462,62 @@ const App = () => {
     );
   }
 
+  // Pantalla de espera de aprobación de admin
+  if (authStep === 'awaitingAdminApproval') {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 flex items-center justify-center min-h-screen">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-md w-full text-center border-b-8 border-orange-400 animate-in zoom-in duration-500">
+              <div className="inline-block p-3 bg-orange-100 rounded-2xl shadow-lg mb-6 rotate-3">
+                <AlertCircle className="w-12 h-12 text-orange-600" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900 mb-4">Cuenta en Revisión</h2>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Tu cuenta ha sido creada exitosamente, pero aún está pendiente de aprobación por parte de nuestro equipo de administración para verificar tu edad.
+              </p>
+
+              <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded mb-6 text-left">
+                <h3 className="font-bold text-orange-900 mb-3">¿Cómo acelerar el proceso?</h3>
+                <ul className="text-sm text-orange-800 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-lg">📍</span>
+                    <span><strong>Opción 1:</strong> Ve a Punto Vuela con tu DNI o documento de identidad</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-lg">📧</span>
+                    <span><strong>Opción 2:</strong> Envía una foto clara de tu DNI a <strong>puntovuelacuevas@gmail.com</strong> indicando que deseas verificar tu edad</span>
+                  </li>
+                </ul>
+              </div>
+
+              <p className="text-gray-500 text-sm mb-6">
+                Nos pondremos en contacto contigo cuando tu cuenta haya sido aprobada. Generalmente esto ocurre en 24-48 horas.
+              </p>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => setAuthStep('login')}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg"
+                >
+                  Volver a Iniciar Sesión
+                </button>
+                <button
+                  onClick={() => setAuthStep('howItWorks')}
+                  className="w-full border-2 border-gray-300 hover:border-yellow-400 text-gray-600 hover:text-yellow-600 py-3 rounded-xl font-bold transition-all"
+                >
+                  Volver al Inicio
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   // Pantalla de restablecer contraseña (nueva password)
   if (authStep === 'resetPassword') {
     return (
@@ -2103,7 +2163,7 @@ const App = () => {
         </main>
         <Footer />
       </div>
-    );
+    git checkout develop    );
   }
 
   return null;
