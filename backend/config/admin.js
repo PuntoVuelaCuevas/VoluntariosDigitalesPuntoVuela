@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const ADMIN_CREDENTIALS = {
     username: 'admin',
-    password_hash: '$2b$10$rHzpbOlLf8gAJJJjnGJl2eC8Qy2ZH5Q7xM5KVx5Q8KvQ7xM5KVx5Q' // Hash de "puntovuela123"
+    password_hash: '$2b$10$U8plx4NLmbA1XWkXfRsqrexzzv9mljcbDRBTLFZXf5oMbZsdHi00C' // Hash de "puntovuela123"
 };
 
 // Función para verificar credenciales admin
