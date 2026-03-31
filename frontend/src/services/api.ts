@@ -243,4 +243,88 @@ export const getRanking = async () => {
     return response.json();
 };
 
+// ==================== ADMIN ENDPOINTS ====================
+
+export interface AdminLoginData {
+    username: string;
+    password: string;
+}
+
+export const adminLogin = async (data: AdminLoginData) => {
+    const response = await fetch(`${API_BASE_URL}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error en el login',
+            status: response.status
+        };
+    }
+
+    return response.json();
+};
+
+export const adminGetPendingUsers = async (token: string) => {
+    const response = await fetch(`${API_BASE_URL}/admin/pending-users`, {
+        method: 'GET',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error al obtener usuarios',
+            status: response.status
+        };
+    }
+
+    return response.json();
+};
+
+export const adminApproveUser = async (userId: number, token: string) => {
+    const response = await fetch(`${API_BASE_URL}/admin/approve/${userId}`, {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error al aprobar usuario',
+            status: response.status
+        };
+    }
+
+    return response.json();
+};
+
+export const adminDenyUser = async (userId: number, token: string) => {
+    const response = await fetch(`${API_BASE_URL}/admin/deny/${userId}`, {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw {
+            message: errorData.message || 'Error al denegar usuario',
+            status: response.status
+        };
+    }
+
+    return response.json();
+};
 

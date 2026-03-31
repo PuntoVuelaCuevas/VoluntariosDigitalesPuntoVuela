@@ -237,7 +237,7 @@ const App = () => {
   // Estados
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [authStep, setAuthStep] = useState<'register' | 'login' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword' | 'howItWorks' | 'awaitingAdminApproval'>('register');
+  const [authStep, setAuthStep] = useState<'register' | 'login' | 'dashboard' | 'verificationSent' | 'forgotPassword' | 'resetPassword' | 'howItWorks' | 'awaitingAdminApproval' | 'adminLogin' | 'adminPanel'>('register');
   const [registerForm, setRegisterForm] = useState({
     nombre_completo: '',
     email: '',
@@ -278,6 +278,18 @@ const App = () => {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+
+  // Estados para Panel Admin
+  const [adminCredentials, setAdminCredentials] = useState({
+    username: '',
+    password: ''
+  });
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [pendingUsers, setPendingUsers] = useState<any[]>([]);
+  const [approvedUsers, setApprovedUsers] = useState<any[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
   const [isCreatingRequest, setIsCreatingRequest] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState<Set<number>>(new Set());
   const [lastReadMessageMap, setLastReadMessageMap] = useState<Record<number, number>>({});
@@ -863,6 +875,87 @@ const App = () => {
     }
   };
 
+  // --- Funciones de Admin ---
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminError(null);
+    setAdminLoading(true);
+
+    try {
+      const response = await api.adminLogin({
+        username: adminCredentials.username,
+        password: adminCredentials.password
+      });
+
+      setAdminToken(response.token);
+      setAuthStep('adminPanel');
+      setAdminCredentials({ username: '', password: '' });
+
+      // Cargar usuarios pendientes
+      setTimeout(() => loadPendingUsers(response.token), 500);
+    } catch (error: any) {
+      console.error('Error admin login:', error);
+      setAdminError(error.message || 'Credenciales incorrectas');
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
+  const loadPendingUsers = async (token: string) => {
+    setIsLoadingUsers(true);
+    try {
+      const data = await api.adminGetPendingUsers(token);
+      setPendingUsers(data.pending || []);
+      setApprovedUsers(data.approved || []);
+    } catch (error: any) {
+      console.error('Error loading pending users:', error);
+      setAdminError(error.message);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const handleApproveUser = async (userId: number) => {
+    if (!adminToken) return;
+
+    try {
+      await api.adminApproveUser(userId, adminToken);
+      showAlert('✓ Usuario Aprobado', 'El usuario ha sido aprobado exitosamente', 'success');
+      // Recargar lista
+      await loadPendingUsers(adminToken);
+    } catch (error: any) {
+      showAlert('Error', error.message, 'error');
+    }
+  };
+
+  const handleDenyUser = async (userId: number) => {
+    if (!adminToken) return;
+
+    showConfirm(
+      'Denegar Usuario',
+      '¿Estás seguro de que deseas denegar el acceso a este usuario?',
+      async () => {
+        try {
+          await api.adminDenyUser(userId, adminToken);
+          showAlert('✓ Usuario Denegado', 'El acceso ha sido denegado', 'success');
+          await loadPendingUsers(adminToken);
+        } catch (error: any) {
+          showAlert('Error', error.message, 'error');
+        }
+      }
+    );
+  };
+
+  const handleAdminLogout = () => {
+    setAdminToken(null);
+    setAdminCredentials({ username: '', password: '' });
+    setAdminError(null);
+    setPendingUsers([]);
+    setApprovedUsers([]);
+    setAuthStep('login');
+    showAlert('Sesión Cerrada', 'Has cerrado tu sesión de administrador', 'success');
+  };
+
   const getCategoryLabel = (categoryId: string) => {
     const category = helpCategories.find(c => c.id === categoryId);
     return category ? `${category.icon} ${category.label}` : categoryId;
@@ -1340,6 +1433,15 @@ const App = () => {
                         className="text-yellow-600 hover:text-yellow-700 font-bold transition-all"
                       >
                         Recuperar contraseña
+                      </button>
+                    </p>
+                    <p className="text-gray-600 mt-3 border-t border-gray-300 pt-3">
+                      <button
+                        type="button"
+                        onClick={() => setAuthStep('adminLogin')}
+                        className="text-orange-600 hover:text-orange-700 font-bold transition-all"
+                      >
+                        🔐 Panel de Admin
                       </button>
                     </p>
                   </div>
@@ -2163,7 +2265,235 @@ const App = () => {
         </main>
         <Footer />
       </div>
-    git checkout develop    );
+    );
+  }
+
+  // Panel de Login Admin
+  if (authStep === 'adminLogin') {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="bg-gradient-to-br from-yellow-50 via-white to-orange-50 p-4 flex items-center justify-center min-h-screen">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-md w-full text-center border-b-8 border-orange-500 animate-in zoom-in duration-500">
+              <div className="inline-block p-3 bg-orange-100 rounded-2xl shadow-lg mb-6 rotate-3">
+                <Users className="w-12 h-12 text-orange-600" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900 mb-2">Panel de Admin</h2>
+              <p className="text-gray-600 mb-6">Inicia sesión para gestionar usuarios</p>
+
+              <form onSubmit={handleAdminLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Usuario</label>
+                  <input
+                    type="text"
+                    value={adminCredentials.username}
+                    onChange={(e) => setAdminCredentials({ ...adminCredentials, username: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-orange-500 focus:outline-none bg-gray-50 transition-all"
+                    placeholder="admin"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+                  <input
+                    type="password"
+                    value={adminCredentials.password}
+                    onChange={(e) => setAdminCredentials({ ...adminCredentials, password: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-orange-500 focus:outline-none bg-gray-50 transition-all"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+
+                {adminError && (
+                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm text-center font-bold">
+                    {adminError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={adminLoading}
+                  className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg ${
+                    adminLoading
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : 'bg-orange-500 hover:bg-orange-600 text-white hover:scale-105 shadow-orange-200'
+                  }`}
+                >
+                  {adminLoading ? 'Iniciando...' : 'Iniciar Sesión'}
+                </button>
+              </form>
+
+              <button
+                onClick={() => setAuthStep('login')}
+                className="mt-6 text-orange-600 hover:text-orange-700 font-bold"
+              >
+                ← Volver
+              </button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Panel de Administración
+  if (authStep === 'adminPanel' && adminToken) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-900">
+        <main className="flex-grow">
+          <CustomModal />
+          <div className="max-w-7xl mx-auto p-6">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500 rounded-lg">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <h1 className="text-3xl font-black text-white">Panel de Admin</h1>
+              </div>
+              <button
+                onClick={handleAdminLogout}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+              >
+                <LogOut className="w-5 h-5" />
+                Cerrar Sesión
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-4xl font-black text-orange-500 mb-2">{pendingUsers.length}</div>
+                <p className="text-gray-600 font-semibold">Usuarios Pendientes</p>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-4xl font-black text-green-500 mb-2">{approvedUsers.length}</div>
+                <p className="text-gray-600 font-semibold">Usuarios Aprobados</p>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-4xl font-black text-blue-500 mb-2">{pendingUsers.length + approvedUsers.length}</div>
+                <p className="text-gray-600 font-semibold">Total de Usuarios</p>
+              </div>
+            </div>
+
+            {/* Tabla de Usuarios Pendientes */}
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+              <h2 className="text-2xl font-black text-gray-900 mb-6">Usuarios Pendientes de Aprobación</h2>
+
+              {isLoadingUsers ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600 font-semibold">Cargando usuarios...</p>
+                </div>
+              ) : pendingUsers.length === 0 ? (
+                <div className="text-center py-8 bg-green-50 rounded-lg border-2 border-green-200">
+                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                  <p className="text-gray-600 font-semibold">¡No hay usuarios pendientes!</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b-2 border-gray-300">
+                        <th className="text-left py-3 px-4 font-black text-gray-900">Nombre</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Email</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Edad</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Localidad</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Rol</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Fecha Registro</th>
+                        <th className="text-center py-3 px-4 font-semibold text-gray-700">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pendingUsers.map((user: any) => (
+                        <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                          <td className="py-4 px-4 font-semibold text-gray-900">{user.nombre_completo}</td>
+                          <td className="py-4 px-4 text-gray-600 text-sm">{user.email}</td>
+                          <td className="py-4 px-4 text-gray-600">{user.edad} años</td>
+                          <td className="py-4 px-4 text-gray-600">{user.localidad}</td>
+                          <td className="py-4 px-4">
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                              user.rol_activo === 'voluntario' 
+                                ? 'bg-blue-100 text-blue-700' 
+                                : 'bg-purple-100 text-purple-700'
+                            }`}>
+                              {user.rol_activo === 'voluntario' ? '👤 Voluntario' : '🛟 Solicitante'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-gray-600 text-sm">{user.fecha_registro}</td>
+                          <td className="py-4 px-4">
+                            <div className="flex gap-2 justify-center">
+                              <button
+                                onClick={() => handleApproveUser(user.id)}
+                                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold transition-all transform hover:scale-105"
+                              >
+                                ✓ Aprobar
+                              </button>
+                              <button
+                                onClick={() => handleDenyUser(user.id)}
+                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold transition-all transform hover:scale-105"
+                              >
+                                ✕ Denegar
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Tabla de Usuarios Aprobados */}
+            {approvedUsers.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h2 className="text-2xl font-black text-gray-900 mb-6">Usuarios Aprobados ({approvedUsers.length})</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b-2 border-gray-300">
+                        <th className="text-left py-3 px-4 font-black text-gray-900">Nombre</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Email</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Edad</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Rol</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Aprobado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {approvedUsers.map((user: any) => (
+                        <tr key={user.id} className="border-b border-gray-200 bg-green-50 hover:bg-green-100 transition-colors">
+                          <td className="py-4 px-4 font-semibold text-gray-900">{user.nombre_completo}</td>
+                          <td className="py-4 px-4 text-gray-600 text-sm">{user.email}</td>
+                          <td className="py-4 px-4 text-gray-600">{user.edad} años</td>
+                          <td className="py-4 px-4">
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                              user.rol_activo === 'voluntario' 
+                                ? 'bg-blue-100 text-blue-700' 
+                                : 'bg-purple-100 text-purple-700'
+                            }`}>
+                              {user.rol_activo === 'voluntario' ? '👤 Voluntario' : '🛟 Solicitante'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
+                              ✓ Aprobado
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return null;
