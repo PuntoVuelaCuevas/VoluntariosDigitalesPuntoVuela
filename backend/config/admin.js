@@ -1,4 +1,4 @@
-// Configuración de admin
+// Configuración de admin.
 // Credenciales hardcodeadas (cambiar en producción por hash)
 const bcrypt = require('bcrypt');
 
