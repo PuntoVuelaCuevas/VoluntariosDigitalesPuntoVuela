@@ -203,6 +203,7 @@ exports.login = async (req, res) => {
             nombre_completo: usuario.nombre_completo,
             edad: usuario.edad,
             genero: usuario.genero,
+            localidad: usuario.localidad,
             rol_activo: usuario.rol_activo,
             es_voluntario: usuario.es_voluntario
         });

@@ -12,6 +12,7 @@ interface UserProfile {
   email: string;
   gender: string;
   age: string;
+  localidad: string;
   rol_activo: 'voluntario' | 'solicitante';
   type: 'user' | 'volunteer';
 }
@@ -510,7 +511,7 @@ const App = () => {
     { id: 'documentos', label: 'Documentos', icon: '📄' }
   ];
 
-  // Cargar usuario de localStorage y verificar token de URL
+  // Cargar usuario de localStorage y verificar token de URL.
   useEffect(() => {
     // 1. Check URL for reset token
     const urlParams = new URLSearchParams(window.location.search);
@@ -644,7 +645,8 @@ const App = () => {
         rol_activo: usuario.rol_activo as 'voluntario' | 'solicitante',
         type: usuario.rol_activo === 'voluntario' ? 'volunteer' : 'user',
         gender: usuario.genero!,
-        age: usuario.edad?.toString() || ''
+        age: usuario.edad?.toString() || '',
+        localidad: usuario.localidad || ''
       };
 
       setUserProfile(profile);
@@ -669,10 +671,10 @@ const App = () => {
   // Manejar registro
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Evitar clics múltiples
     if (isRegistering) return;
-    
+
     const { nombre_completo, email, password, edad, genero, localidad } = registerForm;
 
     setRegisterError(null); // Limpiar errores previos
@@ -1346,11 +1348,10 @@ const App = () => {
                   <button
                     type="submit"
                     disabled={isRegistering}
-                    className={`w-full py-4 rounded-xl font-bold transition-all transform shadow-lg ${
-                      isRegistering
+                    className={`w-full py-4 rounded-xl font-bold transition-all transform shadow-lg ${isRegistering
                         ? 'bg-gray-400 text-white cursor-not-allowed'
                         : 'bg-yellow-500 hover:bg-yellow-600 text-white hover:scale-105 shadow-yellow-200'
-                    }`}
+                      }`}
                   >
                     {isRegistering ? (
                       <div className="flex items-center justify-center gap-2">
@@ -2372,11 +2373,10 @@ const App = () => {
                 <button
                   type="submit"
                   disabled={adminLoading}
-                  className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg ${
-                    adminLoading
+                  className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg ${adminLoading
                       ? 'bg-gray-400 text-white cursor-not-allowed'
                       : 'bg-orange-500 hover:bg-orange-600 text-white hover:scale-105 shadow-orange-200'
-                  }`}
+                    }`}
                 >
                   {adminLoading ? 'Iniciando...' : 'Iniciar Sesión'}
                 </button>
@@ -2471,11 +2471,10 @@ const App = () => {
                           <td className="py-4 px-4 text-gray-600">{user.edad} años</td>
                           <td className="py-4 px-4 text-gray-600">{user.localidad}</td>
                           <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                              user.rol_activo === 'voluntario' 
-                                ? 'bg-blue-100 text-blue-700' 
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${user.rol_activo === 'voluntario'
+                                ? 'bg-blue-100 text-blue-700'
                                 : 'bg-purple-100 text-purple-700'
-                            }`}>
+                              }`}>
                               {user.rol_activo === 'voluntario' ? '👤 Voluntario' : '🛟 Solicitante'}
                             </span>
                           </td>
@@ -2526,11 +2525,10 @@ const App = () => {
                           <td className="py-4 px-4 text-gray-600 text-sm">{user.email}</td>
                           <td className="py-4 px-4 text-gray-600">{user.edad} años</td>
                           <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                              user.rol_activo === 'voluntario' 
-                                ? 'bg-blue-100 text-blue-700' 
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${user.rol_activo === 'voluntario'
+                                ? 'bg-blue-100 text-blue-700'
                                 : 'bg-purple-100 text-purple-700'
-                            }`}>
+                              }`}>
                               {user.rol_activo === 'voluntario' ? '👤 Voluntario' : '🛟 Solicitante'}
                             </span>
                           </td>
