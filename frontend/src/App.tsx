@@ -458,22 +458,33 @@ const App = () => {
       { id: 'alameda3', name: 'Campo de Futbol Polideportivo', lat: 37.2490, lng: -1.7900, icon: '⚽', color: 'green' }
     ],
     'Serrato': [
-      { id: 'serrato1', name: 'Centro del Pueblo', lat: 37.3200, lng: -1.8500, icon: '🏘️', color: 'blue' }
+      { id: 'serrato1', name: 'Iglesia de Serrato', lat: 37.3200, lng: -1.8500, icon: '⛪', color: 'blue' },
+      { id: 'serrato2', name: 'Ayuntamiento de Serrato', lat: 37.3208, lng: -1.8492, icon: '🏛️', color: 'purple' },
+      { id: 'serrato3', name: 'Plaza del Pueblo', lat: 37.3195, lng: -1.8508, icon: '🌳', color: 'green' }
     ],
     'Cañete la Real': [
-      { id: 'canete1', name: 'Centro del Pueblo', lat: 37.3400, lng: -1.8200, icon: '🏘️', color: 'blue' }
+      { id: 'canete1', name: 'Ayuntamiento de Cañete la Real', lat: 37.3400, lng: -1.8200, icon: '🏛️', color: 'blue' },
+      { id: 'canete2', name: 'Iglesia de la Encarnación', lat: 37.3408, lng: -1.8192, icon: '⛪', color: 'purple' },
+      { id: 'canete3', name: 'Polideportivo Municipal', lat: 37.3390, lng: -1.8210, icon: '⚽', color: 'green' }
     ],
     'La Atalaya': [
-      { id: 'atalaya1', name: 'Centro del Pueblo', lat: 37.2800, lng: -1.9000, icon: '🏘️', color: 'blue' }
+      { id: 'atalaya1', name: 'Iglesia de La Atalaya', lat: 37.2800, lng: -1.9000, icon: '⛪', color: 'blue' },
+      { id: 'atalaya2', name: 'Ayuntamiento La Atalaya', lat: 37.2808, lng: -1.8992, icon: '🏛️', color: 'purple' },
+      { id: 'atalaya3', name: 'Plaza Central', lat: 37.2793, lng: -1.9007, icon: '🌳', color: 'green' }
     ],
     'Arriate': [
-      { id: 'arriate1', name: 'Centro del Pueblo', lat: 37.3000, lng: -1.7800, icon: '🏘️', color: 'blue' }
+      { id: 'arriate1', name: 'Ayuntamiento de Arriate', lat: 37.3000, lng: -1.7800, icon: '🏛️', color: 'blue' },
+      { id: 'arriate2', name: 'Iglesia de Arriate', lat: 37.3008, lng: -1.7792, icon: '⛪', color: 'purple' },
+      { id: 'arriate3', name: 'Polideportivo de Arriate', lat: 37.2990, lng: -1.7810, icon: '⚽', color: 'green' }
     ],
     'Los Prados': [
-      { id: 'prados1', name: 'Centro del Pueblo', lat: 37.2900, lng: -1.7700, icon: '🏘️', color: 'blue' }
+      { id: 'prados1', name: 'Iglesia de Los Prados', lat: 37.2900, lng: -1.7700, icon: '⛪', color: 'blue' },
+      { id: 'prados2', name: 'Plaza del Pueblo', lat: 37.2908, lng: -1.7692, icon: '🌳', color: 'purple' }
     ],
     'Villanueva de la Concepción': [
-      { id: 'villanueva1', name: 'Centro del Pueblo', lat: 37.3100, lng: -1.7600, icon: '🏘️', color: 'blue' }
+      { id: 'villanueva1', name: 'Ayuntamiento de Villanueva', lat: 37.3100, lng: -1.7600, icon: '🏛️', color: 'blue' },
+      { id: 'villanueva2', name: 'Iglesia de la Concepción', lat: 37.3108, lng: -1.7592, icon: '⛪', color: 'purple' },
+      { id: 'villanueva3', name: 'Plaza Mayor', lat: 37.3093, lng: -1.7608, icon: '🌳', color: 'green' }
     ],
     'Pizarra': [
       { id: 'pizarra1', name: 'Plaza de la Cultura', lat: 37.2600, lng: -1.7400, icon: '🎭', color: 'blue' },
