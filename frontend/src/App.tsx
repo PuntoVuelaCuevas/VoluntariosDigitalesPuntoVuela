@@ -1250,6 +1250,11 @@ const App = () => {
                       <option value="Arriate">Arriate</option>
                       <option value="Los Prados">Los Prados</option>
                       <option value="Alameda">Alameda</option>
+                      <option value="Villanueva de la Concepción">Villanueva de la Concepción</option>
+                      <option value="Pizarra">Pizarra</option>
+                      <option value="Campillos">Campillos</option>
+                      <option value="Mollina">Mollina</option>
+                      <option value="Montecorto">Montecorto</option>
                     </select>
                   </div>
 
