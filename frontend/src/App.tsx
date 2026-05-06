@@ -1249,6 +1249,7 @@ const App = () => {
                       <option value="La Atalaya">La Atalaya</option>
                       <option value="Arriate">Arriate</option>
                       <option value="Los Prados">Los Prados</option>
+                      <option value="Alameda">Alameda</option>
                     </select>
                   </div>
 
