@@ -444,12 +444,62 @@ const App = () => {
     );
   };
 
-  const predefinedLocations: Location[] = [
-    { id: 'loc1', name: 'Punto Vuela', lat: 37.2965, lng: -1.8687, icon: '💻', color: 'blue' },
-    { id: 'loc2', name: 'Puerta Colegio', lat: 37.2970, lng: -1.8690, icon: '🏫', color: 'purple' },
-    { id: 'loc3', name: 'El Nacimiento', lat: 37.2980, lng: -1.8680, icon: '🏞️', color: 'green' },
-    { id: 'loc4', name: 'Rafael Alberti', lat: 37.2990, lng: -1.8675, icon: '📚', color: 'red' }
-  ];
+  const locationsByTown: Record<string, Location[]> = {
+    'Cuevas del Becerro': [
+      { id: 'loc1', name: 'Punto Vuela', lat: 37.2965, lng: -1.8687, icon: '💻', color: 'blue' },
+      { id: 'loc2', name: 'Puerta Colegio', lat: 37.2970, lng: -1.8690, icon: '🏫', color: 'purple' },
+      { id: 'loc3', name: 'El Nacimiento', lat: 37.2980, lng: -1.8680, icon: '🏞️', color: 'green' },
+      { id: 'loc4', name: 'Rafael Alberti', lat: 37.2990, lng: -1.8675, icon: '📚', color: 'red' }
+    ],
+    'Alameda': [
+      { id: 'alameda1', name: 'Plaza España', lat: 37.2470, lng: -1.7920, icon: '🏛️', color: 'blue' },
+      { id: 'alameda2', name: 'Plaza Andalucía', lat: 37.2480, lng: -1.7910, icon: '🏘️', color: 'purple' },
+      { id: 'alameda3', name: 'Campo de Futbol Polideportivo', lat: 37.2490, lng: -1.7900, icon: '⚽', color: 'green' }
+    ],
+    'Serrato': [
+      { id: 'serrato1', name: 'Centro del Pueblo', lat: 37.3200, lng: -1.8500, icon: '🏘️', color: 'blue' }
+    ],
+    'Cañete la Real': [
+      { id: 'canete1', name: 'Centro del Pueblo', lat: 37.3400, lng: -1.8200, icon: '🏘️', color: 'blue' }
+    ],
+    'La Atalaya': [
+      { id: 'atalaya1', name: 'Centro del Pueblo', lat: 37.2800, lng: -1.9000, icon: '🏘️', color: 'blue' }
+    ],
+    'Arriate': [
+      { id: 'arriate1', name: 'Centro del Pueblo', lat: 37.3000, lng: -1.7800, icon: '🏘️', color: 'blue' }
+    ],
+    'Los Prados': [
+      { id: 'prados1', name: 'Centro del Pueblo', lat: 37.2900, lng: -1.7700, icon: '🏘️', color: 'blue' }
+    ],
+    'Villanueva de la Concepción': [
+      { id: 'villanueva1', name: 'Centro del Pueblo', lat: 37.3100, lng: -1.7600, icon: '🏘️', color: 'blue' }
+    ],
+    'Pizarra': [
+      { id: 'pizarra1', name: 'Plaza de la Cultura', lat: 37.2600, lng: -1.7400, icon: '🎭', color: 'blue' },
+      { id: 'pizarra2', name: 'Plaza del Ayuntamiento', lat: 37.2610, lng: -1.7390, icon: '🏛️', color: 'purple' },
+      { id: 'pizarra3', name: 'Biblioteca', lat: 37.2590, lng: -1.7410, icon: '📚', color: 'green' }
+    ],
+    'Campillos': [
+      { id: 'campillos1', name: 'Puerta del Ayuntamiento', lat: 37.3300, lng: -1.6800, icon: '🏛️', color: 'blue' },
+      { id: 'campillos2', name: 'Puerta de Iglesia', lat: 37.3310, lng: -1.6790, icon: '⛪', color: 'purple' },
+      { id: 'campillos3', name: 'Puerta Polideportivo', lat: 37.3290, lng: -1.6810, icon: '⚽', color: 'green' }
+    ],
+    'Mollina': [
+      { id: 'mollina1', name: 'Puerta Iglesia', lat: 37.3500, lng: -1.7100, icon: '⛪', color: 'blue' },
+      { id: 'mollina2', name: 'Pista de Padel en la Caleta', lat: 37.3510, lng: -1.7090, icon: '🎾', color: 'purple' },
+      { id: 'mollina3', name: 'Biblioteca', lat: 37.3490, lng: -1.7110, icon: '📚', color: 'green' }
+    ],
+    'Montecorto': [
+      { id: 'montecorto1', name: 'Plaza Ermita', lat: 37.2700, lng: -1.8900, icon: '⛪', color: 'blue' },
+      { id: 'montecorto2', name: 'Calle Pablo Ruíz Picasso', lat: 37.2710, lng: -1.8890, icon: '🎨', color: 'purple' },
+      { id: 'montecorto3', name: 'Ayuntamiento Montecorto', lat: 37.2690, lng: -1.8910, icon: '🏛️', color: 'green' }
+    ]
+  };
+
+  const getPredefinedLocations = (): Location[] => {
+    const localidad = userProfile?.localidad || registerForm.localidad;
+    return locationsByTown[localidad] || locationsByTown['Cuevas del Becerro'] || [];
+  };
 
   const helpCategories = [
     { id: 'whatsapp', label: 'WhatsApp', icon: '💬' },
@@ -683,7 +733,7 @@ const App = () => {
       return;
     }
 
-    const selectedLoc = predefinedLocations.find(loc => loc.id === selectedLocationId);
+    const selectedLoc = getPredefinedLocations().find(loc => loc.id === selectedLocationId);
     if (!selectedLoc) return;
 
     setIsCreatingRequest(true);
@@ -1902,7 +1952,7 @@ const App = () => {
                   <div className="mb-8">
                     <label className="block text-gray-700 font-bold mb-3 ml-1">Ubicación</label>
                     <div className="grid grid-cols-1 gap-2">
-                      {predefinedLocations.map(loc => (
+                      {getPredefinedLocations().map(loc => (
                         <button
                           key={loc.id}
                           onClick={() => setSelectedLocationId(loc.id)}
