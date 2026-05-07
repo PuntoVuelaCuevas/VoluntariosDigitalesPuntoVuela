@@ -75,6 +75,12 @@ const Usuario = sequelize.define('Usuario', {
     reset_password_expires: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    aprobado: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: 'Si el usuario ha sido aprobado por el admin'
     }
 }, {
     tableName: 'usuario',
