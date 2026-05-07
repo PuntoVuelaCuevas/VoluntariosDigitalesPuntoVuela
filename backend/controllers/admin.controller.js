@@ -89,10 +89,11 @@ exports.verifyAdminAuth = (req, res, next) => {
 // Obtener usuarios pendientes de aprobación (con más detalles)
 exports.getPendingUsersForAdmin = async (req, res) => {
     try {
-        // Obtener todos los usuarios verificados
-        const usuariosVerificados = await Usuario.findAll({
+        // Obtener todos los usuarios verificados que NO están aprobados
+        const usuariosPendientes = await Usuario.findAll({
             where: {
-                email_verified: true
+                email_verified: true,
+                aprobado: false
             },
             attributes: [
                 'id',
@@ -109,11 +110,26 @@ exports.getPendingUsersForAdmin = async (req, res) => {
             raw: true
         });
 
-        // Filtrar los que NO están aprobados
-        const approvedData = getApprovedUsers();
-        const usuariosPendientes = usuariosVerificados.filter(
-            u => !approvedData.approvedUserIds.includes(u.id)
-        );
+        // Obtener usuarios ya aprobados
+        const usuariosAprobados = await Usuario.findAll({
+            where: {
+                email_verified: true,
+                aprobado: true
+            },
+            attributes: [
+                'id',
+                'nombre_completo',
+                'email',
+                'edad',
+                'genero',
+                'localidad',
+                'rol_activo',
+                'fecha_registro',
+                'nombre_usuario'
+            ],
+            order: [['fecha_registro', 'DESC']],
+            raw: true
+        });
 
         // Procesar datos para mostrar
         const pendingWithStatus = usuariosPendientes.map(u => ({
@@ -122,20 +138,18 @@ exports.getPendingUsersForAdmin = async (req, res) => {
             fecha_registro: new Date(u.fecha_registro).toLocaleString('es-ES')
         }));
 
-        const approvedUsers = usuariosVerificados
-            .filter(u => approvedData.approvedUserIds.includes(u.id))
-            .map(u => ({
-                ...u,
-                approved: true,
-                fecha_registro: new Date(u.fecha_registro).toLocaleString('es-ES')
-            }));
+        const approvedFormatted = usuariosAprobados.map(u => ({
+            ...u,
+            approved: true,
+            fecha_registro: new Date(u.fecha_registro).toLocaleString('es-ES')
+        }));
 
         res.json({
             pending: pendingWithStatus,
-            approved: approvedUsers,
+            approved: approvedFormatted,
             pendingCount: pendingWithStatus.length,
-            approvedCount: approvedUsers.length,
-            totalUsers: usuariosVerificados.length
+            approvedCount: approvedFormatted.length,
+            totalUsers: usuariosPendientes.length + usuariosAprobados.length
         });
     } catch (error) {
         console.error('Error in getPendingUsersForAdmin:', error);
@@ -159,19 +173,16 @@ exports.approveUserAsAdmin = async (req, res) => {
             });
         }
 
-        // Leer archivo de aprobados
-        const approvedData = getApprovedUsers();
-
         // Si ya estaba aprobado
-        if (approvedData.approvedUserIds.includes(usuario.id)) {
+        if (usuario.aprobado) {
             return res.status(400).json({
                 message: 'El usuario ya estaba aprobado'
             });
         }
 
-        // Agregar a aprobados
-        approvedData.approvedUserIds.push(usuario.id);
-        saveApprovedUsers(approvedData);
+        // Actualizar en BD
+        usuario.aprobado = true;
+        await usuario.save();
 
         res.json({
             success: true,
