@@ -92,7 +92,7 @@ exports.findAllTrayectos = async (req, res) => {
                 ]
             },
             include: [
-                { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo', 'edad', 'genero'] },
+                { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo', 'edad', 'genero', 'localidad'] },
                 { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
             ],
             order: [['fecha_creacion', 'DESC']]
@@ -110,7 +110,7 @@ exports.findOneTrayecto = async (req, res) => {
     try {
         const trayecto = await Trayecto.findByPk(req.params.id, {
             include: [
-                { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo'] },
+                { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo', 'localidad'] },
                 { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
             ]
         });
