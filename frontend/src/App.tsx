@@ -12,9 +12,9 @@ interface UserProfile {
   email: string;
   gender: string;
   age: string;
-  localidad: string;
   rol_activo: 'voluntario' | 'solicitante';
   type: 'user' | 'volunteer';
+  localidad?: string;
 }
 
 interface Location {
@@ -42,6 +42,7 @@ interface HelpRequest {
   createdAt: string;
   confirmacion_solicitante?: boolean;
   confirmacion_voluntario?: boolean;
+  solicitanteLocalidad?: string;
 }
 
 interface RankingEntry {
@@ -458,33 +459,22 @@ const App = () => {
       { id: 'alameda3', name: 'Campo de Futbol Polideportivo', lat: 37.2490, lng: -1.7900, icon: '⚽', color: 'green' }
     ],
     'Serrato': [
-      { id: 'serrato1', name: 'Iglesia de Serrato', lat: 37.3200, lng: -1.8500, icon: '⛪', color: 'blue' },
-      { id: 'serrato2', name: 'Ayuntamiento de Serrato', lat: 37.3208, lng: -1.8492, icon: '🏛️', color: 'purple' },
-      { id: 'serrato3', name: 'Plaza del Pueblo', lat: 37.3195, lng: -1.8508, icon: '🌳', color: 'green' }
+      { id: 'serrato1', name: 'Centro del Pueblo', lat: 37.3200, lng: -1.8500, icon: '🏘️', color: 'blue' }
     ],
     'Cañete la Real': [
-      { id: 'canete1', name: 'Ayuntamiento de Cañete la Real', lat: 37.3400, lng: -1.8200, icon: '🏛️', color: 'blue' },
-      { id: 'canete2', name: 'Iglesia de la Encarnación', lat: 37.3408, lng: -1.8192, icon: '⛪', color: 'purple' },
-      { id: 'canete3', name: 'Polideportivo Municipal', lat: 37.3390, lng: -1.8210, icon: '⚽', color: 'green' }
+      { id: 'canete1', name: 'Centro del Pueblo', lat: 37.3400, lng: -1.8200, icon: '🏘️', color: 'blue' }
     ],
     'La Atalaya': [
-      { id: 'atalaya1', name: 'Iglesia de La Atalaya', lat: 37.2800, lng: -1.9000, icon: '⛪', color: 'blue' },
-      { id: 'atalaya2', name: 'Ayuntamiento La Atalaya', lat: 37.2808, lng: -1.8992, icon: '🏛️', color: 'purple' },
-      { id: 'atalaya3', name: 'Plaza Central', lat: 37.2793, lng: -1.9007, icon: '🌳', color: 'green' }
+      { id: 'atalaya1', name: 'Centro del Pueblo', lat: 37.2800, lng: -1.9000, icon: '🏘️', color: 'blue' }
     ],
     'Arriate': [
-      { id: 'arriate1', name: 'Ayuntamiento de Arriate', lat: 37.3000, lng: -1.7800, icon: '🏛️', color: 'blue' },
-      { id: 'arriate2', name: 'Iglesia de Arriate', lat: 37.3008, lng: -1.7792, icon: '⛪', color: 'purple' },
-      { id: 'arriate3', name: 'Polideportivo de Arriate', lat: 37.2990, lng: -1.7810, icon: '⚽', color: 'green' }
+      { id: 'arriate1', name: 'Centro del Pueblo', lat: 37.3000, lng: -1.7800, icon: '🏘️', color: 'blue' }
     ],
     'Los Prados': [
-      { id: 'prados1', name: 'Iglesia de Los Prados', lat: 37.2900, lng: -1.7700, icon: '⛪', color: 'blue' },
-      { id: 'prados2', name: 'Plaza del Pueblo', lat: 37.2908, lng: -1.7692, icon: '🌳', color: 'purple' }
+      { id: 'prados1', name: 'Centro del Pueblo', lat: 37.2900, lng: -1.7700, icon: '🏘️', color: 'blue' }
     ],
     'Villanueva de la Concepción': [
-      { id: 'villanueva1', name: 'Ayuntamiento de Villanueva', lat: 37.3100, lng: -1.7600, icon: '🏛️', color: 'blue' },
-      { id: 'villanueva2', name: 'Iglesia de la Concepción', lat: 37.3108, lng: -1.7592, icon: '⛪', color: 'purple' },
-      { id: 'villanueva3', name: 'Plaza Mayor', lat: 37.3093, lng: -1.7608, icon: '🌳', color: 'green' }
+      { id: 'villanueva1', name: 'Centro del Pueblo', lat: 37.3100, lng: -1.7600, icon: '🏘️', color: 'blue' }
     ],
     'Pizarra': [
       { id: 'pizarra1', name: 'Plaza de la Cultura', lat: 37.2600, lng: -1.7400, icon: '🎭', color: 'blue' },
@@ -522,7 +512,7 @@ const App = () => {
     { id: 'documentos', label: 'Documentos', icon: '📄' }
   ];
 
-  // Cargar usuario de localStorage y verificar token de URL.
+  // Cargar usuario de localStorage y verificar token de URL
   useEffect(() => {
     // 1. Check URL for reset token
     const urlParams = new URLSearchParams(window.location.search);
@@ -620,15 +610,26 @@ const App = () => {
           voluntario_id: t.voluntario_id,
           createdAt: t.fecha_creacion,
           confirmacion_solicitante: t.confirmacion_solicitante,
-          confirmacion_voluntario: t.confirmacion_voluntario
+          confirmacion_voluntario: t.confirmacion_voluntario,
+          solicitanteLocalidad: t.solicitante?.localidad
         };
       });
 
-      setHelpRequests(mappedRequests);
+      // Filtrar solicitudes por localidad del usuario actual
+      // - Voluntarios solo ven solicitudes de su localidad
+      // - Solicitantes ven todas sus solicitudes (se filtran por ID más abajo)
+      let filteredRequests = mappedRequests;
+      if (userProfile?.type === 'volunteer' && userProfile?.localidad) {
+        filteredRequests = mappedRequests.filter((r: HelpRequest) => 
+          r.solicitanteLocalidad === userProfile.localidad
+        );
+      }
+
+      setHelpRequests(filteredRequests);
 
       if (userProfile?.id) {
-        setMyRequests(mappedRequests.filter((r: HelpRequest) => r.solicitante_id === userProfile.id));
-        setMyHelps(mappedRequests.filter((r: HelpRequest) => r.voluntario_id === userProfile.id));
+        setMyRequests(filteredRequests.filter((r: HelpRequest) => r.solicitante_id === userProfile.id));
+        setMyHelps(filteredRequests.filter((r: HelpRequest) => r.voluntario_id === userProfile.id));
       }
     } catch (error) {
       console.error('Error loading trayectos:', error);
@@ -682,10 +683,10 @@ const App = () => {
   // Manejar registro
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     // Evitar clics múltiples
     if (isRegistering) return;
-
+    
     const { nombre_completo, email, password, edad, genero, localidad } = registerForm;
 
     setRegisterError(null); // Limpiar errores previos
@@ -1359,10 +1360,11 @@ const App = () => {
                   <button
                     type="submit"
                     disabled={isRegistering}
-                    className={`w-full py-4 rounded-xl font-bold transition-all transform shadow-lg ${isRegistering
+                    className={`w-full py-4 rounded-xl font-bold transition-all transform shadow-lg ${
+                      isRegistering
                         ? 'bg-gray-400 text-white cursor-not-allowed'
                         : 'bg-yellow-500 hover:bg-yellow-600 text-white hover:scale-105 shadow-yellow-200'
-                      }`}
+                    }`}
                   >
                     {isRegistering ? (
                       <div className="flex items-center justify-center gap-2">
@@ -2384,10 +2386,11 @@ const App = () => {
                 <button
                   type="submit"
                   disabled={adminLoading}
-                  className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg ${adminLoading
+                  className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg ${
+                    adminLoading
                       ? 'bg-gray-400 text-white cursor-not-allowed'
                       : 'bg-orange-500 hover:bg-orange-600 text-white hover:scale-105 shadow-orange-200'
-                    }`}
+                  }`}
                 >
                   {adminLoading ? 'Iniciando...' : 'Iniciar Sesión'}
                 </button>
@@ -2482,10 +2485,11 @@ const App = () => {
                           <td className="py-4 px-4 text-gray-600">{user.edad} años</td>
                           <td className="py-4 px-4 text-gray-600">{user.localidad}</td>
                           <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${user.rol_activo === 'voluntario'
-                                ? 'bg-blue-100 text-blue-700'
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                              user.rol_activo === 'voluntario' 
+                                ? 'bg-blue-100 text-blue-700' 
                                 : 'bg-purple-100 text-purple-700'
-                              }`}>
+                            }`}>
                               {user.rol_activo === 'voluntario' ? '👤 Voluntario' : '🛟 Solicitante'}
                             </span>
                           </td>
@@ -2536,10 +2540,11 @@ const App = () => {
                           <td className="py-4 px-4 text-gray-600 text-sm">{user.email}</td>
                           <td className="py-4 px-4 text-gray-600">{user.edad} años</td>
                           <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${user.rol_activo === 'voluntario'
-                                ? 'bg-blue-100 text-blue-700'
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                              user.rol_activo === 'voluntario' 
+                                ? 'bg-blue-100 text-blue-700' 
                                 : 'bg-purple-100 text-purple-700'
-                              }`}>
+                            }`}>
                               {user.rol_activo === 'voluntario' ? '👤 Voluntario' : '🛟 Solicitante'}
                             </span>
                           </td>
