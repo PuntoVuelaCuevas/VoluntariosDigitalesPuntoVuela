@@ -577,9 +577,15 @@ const App = () => {
     return () => clearInterval(interval);
   }, [userProfile?.type, userProfile?.id]);
 
+  const normalizeLocalidad = (text?: string) => {
+    if (!text) return '';
+    return text.toString().trim().toLowerCase();
+  };
+
   const loadTrayectos = async () => {
     try {
-      const trayectos = await api.obtenerTrayectos();
+      const volunteerLocalidad = userProfile?.type === 'volunteer' ? normalizeLocalidad(userProfile.localidad) : undefined;
+      const trayectos = await api.obtenerTrayectos(volunteerLocalidad);
       const mappedRequests = trayectos.map((t: any) => {
         let status: 'pending' | 'accepted' | 'completed' | 'expired' = 'pending';
         if (t.estado === 'ACEPTADO') status = 'accepted';
@@ -620,8 +626,9 @@ const App = () => {
       // - Solicitantes ven todas sus solicitudes (se filtran por ID más abajo)
       let filteredRequests = mappedRequests;
       if (userProfile?.type === 'volunteer' && userProfile?.localidad) {
+        const volunteerLocalidad = normalizeLocalidad(userProfile.localidad);
         filteredRequests = mappedRequests.filter((r: HelpRequest) => 
-          r.solicitanteLocalidad === userProfile.localidad
+          normalizeLocalidad(r.solicitanteLocalidad) === volunteerLocalidad
         );
       }
 

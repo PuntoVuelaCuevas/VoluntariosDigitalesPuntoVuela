@@ -63,8 +63,12 @@ export const crearTrayecto = async (trayecto: Trayecto) => {
     return response.json();
 };
 
-export const obtenerTrayectos = async () => {
-    const response = await fetch(`${API_BASE_URL}/trayectos`);
+export const obtenerTrayectos = async (localidad?: string) => {
+    const url = new URL(`${API_BASE_URL}/trayectos`);
+    if (localidad) {
+        url.searchParams.append('localidad', localidad);
+    }
+    const response = await fetch(url.toString());
     return response.json();
 };
 

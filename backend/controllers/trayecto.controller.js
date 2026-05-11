@@ -63,9 +63,10 @@ exports.createTrayecto = async (req, res) => {
 
 exports.findAllTrayectos = async (req, res) => {
     try {
-        const { Op } = require('sequelize');
+        const { Op, fn, col, where: seqWhere } = require('sequelize');
         const now = new Date();
         const tiempoExpiracion = new Date(now.getTime() - 30 * 60 * 1000);
+        const requestedLocalidad = req.query.localidad ? String(req.query.localidad).trim().toLowerCase() : null;
 
         console.log(`Checking for expired requests. Now: ${now.toISOString()}, Expiration threshold: ${tiempoExpiracion.toISOString()}`);
 
@@ -81,6 +82,19 @@ exports.findAllTrayectos = async (req, res) => {
             console.log(`Marked ${updatedCount} requests as EXPIRADO.`);
         }
 
+        const solicitanteInclude = {
+            model: Usuario,
+            as: 'solicitante',
+            attributes: ['nombre_usuario', 'nombre_completo', 'edad', 'genero', 'localidad']
+        };
+
+        if (requestedLocalidad) {
+            solicitanteInclude.where = seqWhere(
+                fn('LOWER', fn('TRIM', col('solicitante.localidad'))),
+                requestedLocalidad
+            );
+        }
+
         const trayectos = await Trayecto.findAll({
             where: {
                 [Op.or]: [
@@ -92,7 +106,7 @@ exports.findAllTrayectos = async (req, res) => {
                 ]
             },
             include: [
-                { model: Usuario, as: 'solicitante', attributes: ['nombre_usuario', 'nombre_completo', 'edad', 'genero', 'localidad'] },
+                solicitanteInclude,
                 { model: Usuario, as: 'voluntario', attributes: ['nombre_usuario', 'nombre_completo'] }
             ],
             order: [['fecha_creacion', 'DESC']]
