@@ -1,4 +1,6 @@
 const { Usuario } = require('../models');
+const { sequelize } = require('../config/db');
+const { QueryTypes } = require('sequelize');
 const { verifyAdminCredentials, generateAdminToken, verifyAdminToken } = require('../config/admin');
 const fs = require('fs');
 const path = require('path');
@@ -86,52 +88,80 @@ exports.verifyAdminAuth = (req, res, next) => {
     }
 };
 
+const ensureAprobadoColumn = async () => {
+    const columns = await sequelize.query(
+        `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'usuario' AND COLUMN_NAME = 'aprobado'`,
+        { type: QueryTypes.SELECT }
+    );
+
+    if (!columns.some(c => c.COLUMN_NAME?.toLowerCase() === 'aprobado')) {
+        console.log('Agregar columna aprobado a usuario desde admin.controller...');
+        await sequelize.query("ALTER TABLE `usuario` ADD COLUMN `aprobado` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Si el usuario ha sido aprobado por el admin'");
+    }
+};
+
+const loadAdminUsers = async () => {
+    const usuariosPendientes = await Usuario.findAll({
+        where: {
+            aprobado: false
+        },
+        attributes: [
+            'id',
+            'nombre_completo',
+            'email',
+            'edad',
+            'genero',
+            'localidad',
+            'rol_activo',
+            'fecha_registro',
+            'nombre_usuario',
+            'email_verified'
+        ],
+        order: [['fecha_registro', 'DESC']],
+        raw: true
+    });
+
+    const usuariosAprobados = await Usuario.findAll({
+        where: {
+            aprobado: true
+        },
+        attributes: [
+            'id',
+            'nombre_completo',
+            'email',
+            'edad',
+            'genero',
+            'localidad',
+            'rol_activo',
+            'fecha_registro',
+            'nombre_usuario',
+            'email_verified'
+        ],
+        order: [['fecha_registro', 'DESC']],
+        raw: true
+    });
+
+    return { usuariosPendientes, usuariosAprobados };
+};
+
 // Obtener usuarios pendientes de aprobación (con más detalles)
 exports.getPendingUsersForAdmin = async (req, res) => {
     try {
-        // Obtener todos los usuarios que NO están aprobados
-        const usuariosPendientes = await Usuario.findAll({
-            where: {
-                aprobado: false
-            },
-            attributes: [
-                'id',
-                'nombre_completo',
-                'email',
-                'edad',
-                'genero',
-                'localidad',
-                'rol_activo',
-                'fecha_registro',
-                'nombre_usuario',
-                'email_verified'
-            ],
-            order: [['fecha_registro', 'DESC']],
-            raw: true
-        });
+        let usuariosPendientes;
+        let usuariosAprobados;
 
-        // Obtener usuarios ya aprobados
-        const usuariosAprobados = await Usuario.findAll({
-            where: {
-                aprobado: true
-            },
-            attributes: [
-                'id',
-                'nombre_completo',
-                'email',
-                'edad',
-                'genero',
-                'localidad',
-                'rol_activo',
-                'fecha_registro',
-                'nombre_usuario',
-                'email_verified'
-            ],
-            order: [['fecha_registro', 'DESC']],
-            raw: true
-        });
+        try {
+            ({ usuariosPendientes, usuariosAprobados } = await loadAdminUsers());
+        } catch (innerError) {
+            if (innerError.message?.includes('Unknown column') && innerError.message?.includes('aprobado')) {
+                console.warn('Columna aprobado no existe en la tabla usuario. Intentando crearla...');
+                await ensureAprobadoColumn();
+                ({ usuariosPendientes, usuariosAprobados } = await loadAdminUsers());
+            } else {
+                throw innerError;
+            }
+        }
 
-        // Procesar datos para mostrar
         const pendingWithStatus = usuariosPendientes.map(u => ({
             ...u,
             approved: false,

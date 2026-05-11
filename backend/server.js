@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { connectDB } = require('./config/db');
 const { sequelize } = require('./models'); // Import from models/index.js to get associations
+const { QueryTypes } = require('sequelize');
 const usuarioRoutes = require('./routes/usuario.routes');
 const trayectoRoutes = require('./routes/trayecto.routes');
 const mensajeRoutes = require('./routes/mensaje.routes');
@@ -32,8 +33,42 @@ app.get('/', (req, res) => {
 });
 
 // Database Connection and Server Start
+const ensureUserSchema = async () => {
+    try {
+        const databaseName = process.env.DB_DATABASE;
+        const query = databaseName
+            ? `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'usuario'`
+            : `SHOW COLUMNS FROM ` + sequelize.getQueryInterface().quoteIdentifier('usuario');
+
+        const columns = await sequelize.query(query, {
+            replacements: databaseName ? [databaseName] : [],
+            type: QueryTypes.SELECT
+        });
+
+        const existingColumns = columns.map(c => {
+            if (c.COLUMN_NAME) return c.COLUMN_NAME.toLowerCase();
+            if (c.Field) return c.Field.toLowerCase();
+            return null;
+        }).filter(Boolean);
+
+        if (!existingColumns.includes('email_verified')) {
+            console.log('Agregar columna email_verified a usuario...');
+            await sequelize.query("ALTER TABLE `usuario` ADD COLUMN `email_verified` BOOLEAN NOT NULL DEFAULT FALSE");
+        }
+
+        if (!existingColumns.includes('aprobado')) {
+            console.log('Agregar columna aprobado a usuario...');
+            await sequelize.query("ALTER TABLE `usuario` ADD COLUMN `aprobado` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Si el usuario ha sido aprobado por el admin'");
+        }
+    } catch (error) {
+        console.error('No se pudo verificar/actualizar el esquema de usuario:', error);
+        throw error;
+    }
+};
+
 const startServer = async () => {
     await connectDB();
+    await ensureUserSchema();
 
     // Sync models with database
     // alter: true updates tables to match models without dropping data
