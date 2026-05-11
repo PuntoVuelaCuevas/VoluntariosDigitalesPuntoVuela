@@ -177,19 +177,17 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Verificar si el email está validado
-        if (!usuario.email_verified) {
-            return res.status(403).json({
-                message: 'Por favor verifica tu correo antes de iniciar sesión.'
-            });
-        }
-
         // Verificar si el usuario ha sido aprobado (usar campo de BD)
         if (!usuario.aprobado) {
             return res.status(403).json({
                 message: 'Tu cuenta está pendiente de aprobación por parte de nuestro equipo. Por favor verifica tu edad en Punto Vuela con tu DNI o envía un correo a puntovuelacuevas@gmail.com con una foto de tu DNI.',
                 awaiting_approval: true
             });
+        }
+
+        // Si el usuario ya fue aprobado, permitimos el acceso incluso si la verificación de correo no se completó.
+        if (!usuario.email_verified) {
+            console.warn(`Usuario aprobado sin email verificado: ${usuario.email}`);
         }
 
         // Responder con datos del usuario (sin password_hash)
@@ -355,10 +353,9 @@ exports.approveUser = async (req, res) => {
 // Obtener usuarios pendientes de aprobación (Admin)
 exports.getPendingUsers = async (req, res) => {
     try {
-        // Obtener todos los usuarios verificados que no estén aprobados
+        // Obtener todos los usuarios que no estén aprobados
         const usuariosPendientes = await Usuario.findAll({
             where: {
-                email_verified: true,
                 aprobado: false
             },
             attributes: [
@@ -369,7 +366,8 @@ exports.getPendingUsers = async (req, res) => {
                 'genero',
                 'localidad',
                 'rol_activo',
-                'fecha_registro'
+                'fecha_registro',
+                'email_verified'
             ],
             order: [['fecha_registro', 'DESC']]
         });
@@ -377,7 +375,6 @@ exports.getPendingUsers = async (req, res) => {
         // Obtener usuarios aprobados para mostrar en el panel
         const usuariosAprobados = await Usuario.findAll({
             where: {
-                email_verified: true,
                 aprobado: true
             },
             attributes: ['id'],

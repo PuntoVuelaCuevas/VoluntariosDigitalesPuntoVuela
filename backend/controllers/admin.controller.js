@@ -89,10 +89,9 @@ exports.verifyAdminAuth = (req, res, next) => {
 // Obtener usuarios pendientes de aprobación (con más detalles)
 exports.getPendingUsersForAdmin = async (req, res) => {
     try {
-        // Obtener todos los usuarios verificados que NO están aprobados
+        // Obtener todos los usuarios que NO están aprobados
         const usuariosPendientes = await Usuario.findAll({
             where: {
-                email_verified: true,
                 aprobado: false
             },
             attributes: [
@@ -104,7 +103,8 @@ exports.getPendingUsersForAdmin = async (req, res) => {
                 'localidad',
                 'rol_activo',
                 'fecha_registro',
-                'nombre_usuario'
+                'nombre_usuario',
+                'email_verified'
             ],
             order: [['fecha_registro', 'DESC']],
             raw: true
@@ -113,7 +113,6 @@ exports.getPendingUsersForAdmin = async (req, res) => {
         // Obtener usuarios ya aprobados
         const usuariosAprobados = await Usuario.findAll({
             where: {
-                email_verified: true,
                 aprobado: true
             },
             attributes: [
@@ -125,7 +124,8 @@ exports.getPendingUsersForAdmin = async (req, res) => {
                 'localidad',
                 'rol_activo',
                 'fecha_registro',
-                'nombre_usuario'
+                'nombre_usuario',
+                'email_verified'
             ],
             order: [['fecha_registro', 'DESC']],
             raw: true
