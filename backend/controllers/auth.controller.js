@@ -185,9 +185,11 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Si el usuario ya fue aprobado, permitimos el acceso incluso si la verificación de correo no se completó.
+        // Verificar si el email está validado
         if (!usuario.email_verified) {
-            console.warn(`Usuario aprobado sin email verificado: ${usuario.email}`);
+            return res.status(403).json({
+                message: 'Por favor verifica tu correo antes de iniciar sesión.'
+            });
         }
 
         // Responder con datos del usuario (sin password_hash)

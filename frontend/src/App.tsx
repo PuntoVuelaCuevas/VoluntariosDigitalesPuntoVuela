@@ -955,8 +955,8 @@ const App = () => {
       setAuthStep('adminPanel');
       setAdminCredentials({ username: '', password: '' });
 
-      // Cargar usuarios pendientes
-      setTimeout(() => loadPendingUsers(response.token), 500);
+      // Cargar usuarios pendientes inmediatamente
+      await loadPendingUsers(response.token);
     } catch (error: any) {
       console.error('Error admin login:', error);
       setAdminError(error.message || 'Credenciales incorrectas');
@@ -1019,6 +1019,12 @@ const App = () => {
     setAuthStep('login');
     showAlert('Sesión Cerrada', 'Has cerrado tu sesión de administrador', 'success');
   };
+
+  useEffect(() => {
+    if (authStep === 'adminPanel' && adminToken) {
+      loadPendingUsers(adminToken);
+    }
+  }, [authStep, adminToken]);
 
   const getCategoryLabel = (categoryId: string) => {
     const category = helpCategories.find(c => c.id === categoryId);
@@ -2433,6 +2439,12 @@ const App = () => {
                 Cerrar Sesión
               </button>
             </div>
+
+            {adminError && (
+              <div className="mb-6 rounded-xl border border-red-400 bg-red-50 p-4 text-red-700">
+                <strong>Error al cargar usuarios:</strong> {adminError}
+              </div>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
