@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { Usuario } = require('../models');
-const { sendVerificationEmail, sendPasswordResetEmail } = require('../config/mailer');
+const { sendVerificationEmail, sendPasswordResetEmail, sendApprovalEmail } = require('../config/mailer');
 
 // Ruta al archivo de usuarios aprobados
 const APPROVED_USERS_FILE = path.join(__dirname, '../config/approved-users.json');
@@ -333,6 +333,9 @@ exports.approveUser = async (req, res) => {
         // Actualizar campo aprobado en la BD
         usuario.aprobado = true;
         await usuario.save();
+
+        // Enviar email de notificación de aprobación
+        await sendApprovalEmail(usuario);
 
         res.json({
             message: 'Usuario aprobado correctamente',

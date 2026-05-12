@@ -217,4 +217,38 @@ const sendPasswordResetEmail = async (email, token) => {
     }
 };
 
-module.exports = { sendNewRequestNotification, sendVerificationEmail, verifyConnection, sendTestEmail, sendPasswordResetEmail };
+const sendApprovalEmail = async (user) => {
+    try {
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #2563eb;">¡Tu cuenta ha sido activada!</h2>
+                <p>Hola ${user.nombre_completo},</p>
+                <p>Tu cuenta en <strong>Voluntarios Digitales Punto Vuela</strong> ha sido activada correctamente.</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://voluntariosdigitalespuntovuela-pearl.vercel.app/?view=login" style="background-color: #eab308; color: black; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Iniciar Sesión</a>
+                </div>
+
+                <p>Ahora puedes acceder a todas las funciones de la plataforma y comenzar a ayudar a quienes lo necesitan.</p>
+                
+                <p style="font-size: 12px; color: #999; border-top: 1px solid #ddd; padding-top: 15px;">
+                    Voluntarios Digitales Punto Vuela<br>
+                    Email: puntovuelacuevas@gmail.com
+                </p>
+            </div>
+        `;
+
+        const info = await sendEmailViaAPI({
+            to: user.email,
+            subject: 'Tu cuenta Voluntarios Digitales ha sido activada',
+            htmlContent: html
+        });
+
+        console.log('Approval email sent (API):', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error sending approval email:', error);
+    }
+};
+
+module.exports = { sendNewRequestNotification, sendVerificationEmail, verifyConnection, sendTestEmail, sendPasswordResetEmail, sendApprovalEmail };
