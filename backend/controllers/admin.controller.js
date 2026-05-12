@@ -2,6 +2,7 @@ const { Usuario } = require('../models');
 const { sequelize } = require('../config/db');
 const { QueryTypes } = require('sequelize');
 const { verifyAdminCredentials, generateAdminToken, verifyAdminToken } = require('../config/admin');
+const { sendApprovalEmail } = require('../config/mailer');
 const fs = require('fs');
 const path = require('path');
 
@@ -213,6 +214,13 @@ exports.approveUserAsAdmin = async (req, res) => {
         // Actualizar en BD
         usuario.aprobado = true;
         await usuario.save();
+
+        // Enviar correo de notificación al usuario aprobado
+        try {
+            await sendApprovalEmail(usuario);
+        } catch (emailError) {
+            console.error('Error sending approval email:', emailError);
+        }
 
         res.json({
             success: true,
